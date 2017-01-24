@@ -9,3 +9,6 @@ over time and analyzing their behaviors.
 
 
 [![Build Status](https://travis-ci.org/windelbouwman/chronos.svg?branch=master)](https://travis-ci.org/windelbouwman/chronos)
+
+[![Build status](https://ci.appveyor.com/api/projects/status/cj1m66gmbfdv4td3?svg=true)](https://ci.appveyor.com/project/WindelBouwman/chronos)
+
