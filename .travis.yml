@@ -1,0 +1,7 @@
+
+before_install:
+  - sudo apt-get -qq update
+
+script:
+  - qmake
+  - make
