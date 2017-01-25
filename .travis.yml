@@ -1,7 +1,18 @@
+language: cpp
+
+dist: trusty
+sudo: false
+
+os:
+  - linux
+  - osx
 
 before_install:
-  - sudo apt-get -qq update
+  - add-apt-repository --yes ppa:ubuntu=sdk-team/ppa
+  - apt-get -qq update
+  - apt-get install qtbase5-dev qt5-qmake
 
 script:
+  - qmake -v
   - qmake
   - make

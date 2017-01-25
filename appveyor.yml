@@ -1,8 +1,14 @@
 
+environment:
+  QTDIR: C:\Qt\5.7\mingw53_32
+
 install:
-  - set QTDIR=C:\Qt\5.7\mingw53_32
-  - set PATH=%PATH%;%QTDIR%\bin
+  - set PATH=%QTDIR%\bin;C:\Qt\Tools\mingw530_32;%PATH%
 
 build_script:
   - qmake chronos.pro
   - mingw32-make
+
+
+artifacts:
+  - path: chronos.exe

@@ -27,11 +27,13 @@ SOURCES += src/main.cpp\
         src/mainwindow.cpp \
     src/signalviewer.cpp \
     src/sourcesselector.cpp \
-    src/datasourcemodel.cpp
+    src/datasourcemodel.cpp \
+    src/timespanselectionwidget.cpp
 
 HEADERS  += src/mainwindow.h \
     src/signalviewer.h \
     src/sourcesselector.h \
-    src/datasourcemodel.h
+    src/datasourcemodel.h \
+    src/timespanselectionwidget.h
 
 FORMS    += src/mainwindow.ui
