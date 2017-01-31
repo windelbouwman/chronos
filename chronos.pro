@@ -24,16 +24,26 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += src/main.cpp\
-        src/mainwindow.cpp \
-    src/signalviewer.cpp \
-    src/sourcesselector.cpp \
-    src/datasourcemodel.cpp \
-    src/timespanselectionwidget.cpp
+        src/gui/mainwindow.cpp \
+    src/gui/signalviewer.cpp \
+    src/gui/sourcesselector.cpp \
+    src/gui/datasourcemodel.cpp \
+    src/gui/timespanselectionwidget.cpp \
+    src/data/data_source.cpp \
+    src/data/trace_group.cpp \
+    src/data/trace_interface.cpp \
+    src/data/signal_trace.cpp \
+    src/data/tree_item.cpp
 
-HEADERS  += src/mainwindow.h \
-    src/signalviewer.h \
-    src/sourcesselector.h \
-    src/datasourcemodel.h \
-    src/timespanselectionwidget.h
+HEADERS  += src/gui/mainwindow.h \
+    src/gui/signalviewer.h \
+    src/gui/sourcesselector.h \
+    src/gui/datasourcemodel.h \
+    src/gui/timespanselectionwidget.h \
+    src/data/data_source.h \
+    src/data/trace_group.h \
+    src/data/trace_interface.h \
+    src/data/signal_trace.h \
+    src/data/tree_item.h
 
-FORMS    += src/mainwindow.ui
+FORMS    += src/gui/mainwindow.ui

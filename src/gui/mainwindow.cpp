@@ -14,6 +14,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_signal_viewer = new SignalViewer(this);
     setCentralWidget(m_signal_viewer);
+
+    setWindowTitle("Welcome to the Chronos log viewer!");
 }
 
 MainWindow::~MainWindow()
