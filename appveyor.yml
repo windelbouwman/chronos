@@ -6,8 +6,8 @@ install:
   - set PATH=%QTDIR%\bin;C:\Qt\Tools\mingw530_32\bin;%PATH%
 
 build_script:
-  - qmake chronos.pro
-  - mingw32-make
+  # - qmake chronos.pro
+  # - mingw32-make
 
 
 artifacts:

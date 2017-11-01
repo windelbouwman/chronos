@@ -1,2 +1,5 @@
 
 chronos.pro.user
+build*
+*.hdf5
+*.netcdf

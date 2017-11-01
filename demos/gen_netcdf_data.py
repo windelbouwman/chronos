@@ -12,7 +12,7 @@ s2 = 3 * np.cos(time*4) - 1
 # print(time, time.shape, s1, s1.shape)
 
 
-with netcdf.netcdf_file('woot.nc', 'w') as f:
+with netcdf.netcdf_file('woot.netcdf', 'w') as f:
     f.createDimension('time', time.shape[0])
     time_var = f.createVariable('time', np.float64, ('time',))
     time_var.units = 'seconds since yesterday'
