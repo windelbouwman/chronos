@@ -15,6 +15,7 @@ public:
     virtual int rowCount(const QModelIndex& parent) const;
     virtual int columnCount(const QModelIndex& parent) const;
     virtual QVariant data(const QModelIndex &index, int role) const;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
 private:
     void create_test_set();

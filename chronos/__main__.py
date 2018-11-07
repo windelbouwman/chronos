@@ -13,11 +13,10 @@ from .data.data import load_data
 
 
 def main():
-    data = load_data('demos/noize.hdf5')
-    print(data)
     app = QApplication(sys.argv)
     w = ChronosMainWindow()
     w.show()
+    data = load_data('demos/noize.hdf5')
     w.load_data(data)
     app.exec()
 

@@ -8,7 +8,8 @@ install:
 build_script:
   # - qmake chronos.pro
   # - mingw32-make
+  - echo "TODO"
 
 
-artifacts:
-  - path: chronos.exe
+#artifacts:
+#  - path: chronos.exe

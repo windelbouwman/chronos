@@ -1,5 +1,8 @@
 
 chronos.pro.user
 build*
+myenv
+.idea
+__pycache__
 *.hdf5
 *.netcdf

@@ -1,5 +1,6 @@
 #include "sourcesselector.h"
 
+#include <QObject>
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QLineEdit>
@@ -13,9 +14,8 @@ SourcesSelector::SourcesSelector(QWidget *parent) : QWidget(parent)
 
     setupGui();
 
-    QSortFilterProxyModel* filter_model = new QSortFilterProxyModel;
-    // filter_model->
-    m_data_sources_view->setModel(m_data_sources_model);
+
+    // m_data_sources_view->expandAll();
 }
 
 SourcesSelector::~SourcesSelector()
@@ -30,8 +30,21 @@ void SourcesSelector::setupGui()
     QLineEdit* signal_filter = new QLineEdit(this);
     layout->addWidget(signal_filter);
 
+    QPushButton* expandAll = new QPushButton("Expand all", this);
+    layout->addWidget(expandAll);
+
     m_data_sources_view = new QTreeView(this);
     layout->addWidget(m_data_sources_view);
 
+    connect(expandAll, &QPushButton::clicked, m_data_sources_view, &QTreeView::expandAll);
+
     setLayout(layout);
+
+    // Hookup some extra signals and slots:
+    QSortFilterProxyModel* filter_model = new QSortFilterProxyModel;
+    filter_model->setSourceModel(m_data_sources_model);
+    filter_model->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_data_sources_view->setModel(filter_model);
+
+    connect(signal_filter, &QLineEdit::textChanged, filter_model, &QSortFilterProxyModel::setFilterFixedString);
 }

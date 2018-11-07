@@ -1,4 +1,4 @@
 
 import runpy
 
-runpy.run_path('chronos')
+runpy.run_module('chronos')

@@ -1,0 +1,8 @@
+pandas
+numpy
+vispy
+pyqt5
+matplotlib
+h5py
+pyqtgraph
+

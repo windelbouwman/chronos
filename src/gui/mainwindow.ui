@@ -57,6 +57,18 @@
    </attribute>
    <widget class="QWidget" name="dockWidgetContents"/>
   </widget>
+  <widget class="QDockWidget" name="signalsDockWidget">
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QTreeView" name="signalsTreeView"/>
+     </item>
+    </layout>
+   </widget>
+  </widget>
   <action name="actionAbout">
    <property name="text">
     <string>About</string>

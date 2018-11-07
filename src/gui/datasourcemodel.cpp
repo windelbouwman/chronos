@@ -114,22 +114,43 @@ QVariant DataSourceModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid())
     {
+        Tree_item* item = static_cast<Tree_item*>(index.internalPointer());
+
         if (role == Qt::DisplayRole)
         {
-            Tree_item* item = static_cast<Tree_item*>(index.internalPointer());
-
             if (index.column() == 0)
             {
                 return QVariant(item->get_name().c_str());
             }
         }
-        else
+
+        if (role == Qt::CheckStateRole && index.column() == 0)
         {
-            return QVariant();
+            bool checked = true;
+            return static_cast< int >( checked ? Qt::Checked : Qt::Unchecked );
         }
+
+        return QVariant();
     }
     else
     {
         return QVariant();
     }
+}
+
+Qt::ItemFlags DataSourceModel::flags(const QModelIndex &index) const
+{
+    Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+
+    if (index.isValid())
+    {
+        Tree_item* item = static_cast<Tree_item*>(index.internalPointer());
+        Signal_trace* signal_trace =  dynamic_cast<Signal_trace*>(item);
+        if (signal_trace && (index.column() == 0))
+        {
+            flags |= Qt::ItemIsUserCheckable;
+        }
+    }
+
+    return flags;
 }
