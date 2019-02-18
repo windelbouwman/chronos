@@ -1,9 +1,21 @@
 
+# Chronos
+
+Tracing on steroids.
+
 # Introduction
 
 Chronos is a logging and signal recording and viewing tool. It is intended
 to analyze systems behavior. It is very suited for dealing with systems
 over time and analyzing their behaviors.
+
+Examples of timestamped data:
+
+- Measurements (cpu usage, voltages measured by DAQ cards)
+- Video (camera streams)
+- Audio (microphone measurements)
+- Log messages
+- Tracing data from DTrace / systemtap
 
 # Installation
 

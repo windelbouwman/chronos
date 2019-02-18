@@ -16,8 +16,8 @@ def main():
     app = QApplication(sys.argv)
     w = ChronosMainWindow()
     w.show()
-    data = load_data('demos/noize.hdf5')
-    w.load_data(data)
+    # data = load_data('demos/noize.hdf5')
+    # w.load_data(data)
     app.exec()
 
 

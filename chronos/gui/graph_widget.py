@@ -1,4 +1,6 @@
 """ Graph widget showing a signal over time.
+
+Idea: use matplotlib for the plotting here.
 """
 
 from PyQt5 import QtWidgets
