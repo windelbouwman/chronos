@@ -6,6 +6,8 @@ Implement a convenient time period selection box.
 import math
 from PyQt5 import QtWidgets, QtCore
 
+from ..data import TimeSpan, TimeStamp
+
 
 RANGES = [
     'last 30 minutes',
@@ -34,8 +36,9 @@ class TimeSpanQuick(QtWidgets.QWidget):
 
 class TimeSpanWidget(QtWidgets.QWidget):
     """ Show the current timespan and provide options to modify it. """
-    def __init__(self):
+    def __init__(self, zoom_agent):
         super().__init__()
+        self._zoom_agent = zoom_agent
         vbox = QtWidgets.QVBoxLayout(self)
         self.range_button = QtWidgets.QPushButton()
         self.range_button.setCheckable(True)
@@ -51,3 +54,5 @@ class TimeSpanWidget(QtWidgets.QWidget):
     def updateTimespan(self, name):
         self.range_button.setChecked(False)
         print(name)
+        timespan = 1  # TODO!
+        self._zoom_agent.zoom_to(timespan)

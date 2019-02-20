@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>915</width>
+    <width>888</width>
     <height>603</height>
    </rect>
   </property>
@@ -19,7 +19,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>915</width>
+     <width>888</width>
      <height>22</height>
     </rect>
    </property>
@@ -36,7 +36,13 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuView"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -50,7 +56,7 @@
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="timeSpanDockWidget">
    <property name="windowTitle">
-    <string>Timespa&amp;n selection</string>
+    <string>Timespan selection</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>4</number>
@@ -58,6 +64,9 @@
    <widget class="QWidget" name="dockWidgetContents"/>
   </widget>
   <widget class="QDockWidget" name="signalsDockWidget">
+   <property name="windowTitle">
+    <string>Signal sources</string>
+   </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>

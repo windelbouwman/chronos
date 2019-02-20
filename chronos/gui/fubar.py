@@ -19,12 +19,21 @@ class LogTrace(TraceVisualizer):
 class SignalTrace(TraceVisualizer):
     """ Visualizer for one or more signals.
     """
-    def __init__(self):
+    def __init__(self, zoom_agent):
         super().__init__()
         l = QtWidgets.QHBoxLayout()
         self._label = QtWidgets.QLabel()
         self._label.setText("FubarPlot12345")
         l.addWidget(self._label)
+        print('woot')
+
+        # Method 3:
+        self._graph = GraphWidget(zoom_agent)
+        l.addWidget(self._graph)
+        self.setLayout(l)
+
+    
+    def method2(self):
         self._view = QtWidgets.QGraphicsView()
         l.addWidget(self._view)
         self.setLayout(l)
@@ -34,11 +43,71 @@ class SignalTrace(TraceVisualizer):
         self._scene.addItem(lp)
 
 
-class TimeAxis(QtWidgets.QWidget):
-    """ Top (or bottom) time axis from left to right.
+class TimeScale:
+    pass
+
+
+class GraphWidget(QtWidgets.QWidget):
+    """ Implements plotting of a signal by using paintEvent.
     """
-    def __init__(self):
+    def __init__(self, zoom_agent):
+        super().__init__()
+        self._zoom_agent = zoom_agent
+        self._zoom_agent.cursor_changed.connect(self.on_cursor_change)
+        self._cursor_x = None
+        self._cursor_x2 = None
+        self.setMouseTracking(True)
+    
+    def mousePressEvent(self, event):
+        print('Press!')
+        self._cursor_x2 = event.x()
+        self.update()
+    
+    def mouseReleaseEvent(self, event):
+        print('Release!')
+        self._cursor_x2 = None
+        self.update()
+
+    def mouseMoveEvent(self, event):
+        super().mouseMoveEvent(event)
+        timestamp = self._zoom_agent.pixel_to_timestamp(event.x())
+        self._zoom_agent.set_cursor(timestamp)
+
+    def on_cursor_change(self, timestamp):
+        """ Current location changed! """
+        self._cursor_x = self._zoom_agent.timestamp_to_pixel(timestamp)
+        self.update()
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        painter = QtGui.QPainter(self)
+        # Paint the several thingies:
+        self.draw_grid(painter, event.rect())
+        self.draw_signals(painter, event.rect())
+        self.draw_cursor(painter, event.rect())
+    
+    def draw_signals(self, painter, rect):
         pass
+
+    def draw_cursor(self, painter, rect):
+        # print('voodoo', rect)
+        if self._cursor_x is not None:
+            if self._cursor_x2 is not None:
+                # We have a selection!
+                painter.fillRect(self._cursor_x, rect.y(), self._cursor_x2, rect.y() + rect.height(), Qt.darkYellow)
+            painter.setPen(Qt.blue)
+            painter.drawLine(self._cursor_x, rect.y(), self._cursor_x, rect.height() + rect.y())
+        
+    
+    def draw_grid(self, painter, rect):
+        painter.setPen(Qt.black)
+
+        # TODO: draw correct stuff
+        for x in range(rect.x(), rect.x() + rect.width(), 35):
+            painter.drawLine(x, rect.y(), x, rect.y() + rect.height())
+
+        for y in range(rect.y(), rect.y() + rect.height(), 35):
+            painter.drawLine(rect.x(), y, rect.x() + rect.width(), y)
 
 
 class LinePiece(QtWidgets.QGraphicsItem):
@@ -84,6 +153,30 @@ class TimeAxisItem(QtWidgets.QGraphicsItem):
             painter.drawText(tick, 30, str(tick))
 
 
+class TimeAxisWidget(QtWidgets.QWidget):
+    """ Top (or bottom) time axis from left to right.
+    """
+    def __init__(self, zoom_agent):
+        super().__init__()
+        self._zoom_agent = zoom_agent
+
+    def mouseMoveEvent(self, event):
+        super().mouseMoveEvent(event)
+        print('voodoo')
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        painter = QtGui.QPainter(self)
+        painter.setPen(Qt.blue)
+
+        # TODO: draw correct stuff
+        for tick in range(0, 600, 35):
+            painter.drawLine(tick, 0, tick, 20)
+            painter.drawText(tick, 30, str(tick))
+
+        # print('fubar')
+
+
 class CursorItem(QtWidgets.QGraphicsItem):
     """ Draw current mouse cursor line.
     """
@@ -98,9 +191,45 @@ class CursorItem(QtWidgets.QGraphicsItem):
 
 
 class Fubar(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, zoom_agent):
         super().__init__()
-        self.traces = []
+        self._zoom_agent = zoom_agent
+        self._traces = []
+        self.method3()
+        # self.method1()
+        # self.method2()
+    
+    def method3(self):
+        # TODO: scroll area with vbox layout for vertical scroll.
+        l = QtWidgets.QVBoxLayout()
+        self._axis_top = TimeAxisWidget(self._zoom_agent)
+        l.addWidget(self._axis_top)
+        self.setLayout(l)
+
+        trace1 = SignalTrace(self._zoom_agent)
+        l.addWidget(trace1)
+        self._traces.append(trace1)
+
+
+    def method2(self):
+        # Make 1 view on a scene. All items in scene!
+        l = QtWidgets.QVBoxLayout()
+        self._view = QtWidgets.QGraphicsView()
+        l.addWidget(self._view)
+        self.setLayout(l)
+
+        self._scene = QtWidgets.QGraphicsScene()
+        self._view.setScene(self._scene)
+
+        # Create some clever anchor:
+        container_widget = QtWidgets.QGraphicsWidget()
+        l2 = QtWidgets.QGraphicsAnchorLayout()
+        container_widget.setLayout(l2)
+        self._scene.addItem(container_widget)
+
+
+    def method1(self):
+        # Make traces as widgets, but signals as graphics scene.
         l = QtWidgets.QVBoxLayout()
         
         self.setLayout(l)
@@ -125,12 +254,14 @@ class Fubar(QtWidgets.QWidget):
         self.traces.append(trace2)
         l.addWidget(trace2)
 
-        # 3rd trace:
-        trace3 = SignalTrace()
-        self.traces.append(trace3)
-        l.addWidget(trace3)
+        # self._scene.
 
-        self._selection_overlay = TimeSelectorWidget(parent=self)
+        # 3rd trace:
+        # trace3 = SignalTrace()
+        # self.traces.append(trace3)
+        # l.addWidget(trace3)
+
+        # self._selection_overlay = TimeSelectorWidget(parent=self)
 
 
 class TimeSelectorWidget(QtWidgets.QWidget):

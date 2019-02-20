@@ -4,6 +4,7 @@ from PyQt5 import uic, QtWidgets
 from .fubar import Fubar
 from .timespan_widget import TimeSpanWidget
 from .data_source_model import DataSourceModel
+from .zoom_agent import ZoomAgent
 
 
 class ChronosMainWindow(QtWidgets.QMainWindow):
@@ -12,15 +13,23 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
         super().__init__(parent=parent)
         uic.loadUi('src/gui/mainwindow.ui', self)
         # self.graph_widget = GraphWidget(self)
-        self.bar_charts = Fubar()
+        self._zoom_agent = ZoomAgent()
+        self.bar_charts = Fubar(self._zoom_agent)
         self.setCentralWidget(self.bar_charts)
-        self.timeSpanWidget = TimeSpanWidget()
+        self.timeSpanWidget = TimeSpanWidget(self._zoom_agent)
         self.timeSpanDockWidget.setWidget(self.timeSpanWidget)
+
+        self.signalsDockWidget.setWindowTitle("Signals")
+        # self.signalsTreeView.setModel()
+        self.load_data(1)
+
+        self.menuView.addAction(self.timeSpanDockWidget.toggleViewAction())
+        self.menuView.addAction(self.signalsDockWidget.toggleViewAction())
 
     def load_data(self, data):
         # data = [1, 2, 3, 1, 2, 3, 4, 5, 3, 2, 4, 5]
         # axes = self.graph_widget.set_data(data)
         pass
 
-        # self.signal_model = DataSourceModel()
-        # self.signalsTreeView.setModel(self.signal_model)
+        self.signal_model = DataSourceModel()
+        self.signalsTreeView.setModel(self.signal_model)
