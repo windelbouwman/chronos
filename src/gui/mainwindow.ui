@@ -52,6 +52,11 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionZoomOut"/>
+   <addaction name="actionZoomIn"/>
+   <addaction name="actionZoomFit"/>
+   <addaction name="actionPanLeft"/>
+   <addaction name="actionPanRight"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QDockWidget" name="timeSpanDockWidget">
@@ -91,6 +96,37 @@
   <action name="actionQuit">
    <property name="text">
     <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionZoomOut">
+   <property name="text">
+    <string>Zoom out</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom out</string>
+   </property>
+  </action>
+  <action name="actionZoomFit">
+   <property name="text">
+    <string>Zoom fit</string>
+   </property>
+   <property name="toolTip">
+    <string>Autoscale</string>
+   </property>
+  </action>
+  <action name="actionZoomIn">
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+  </action>
+  <action name="actionPanRight">
+   <property name="text">
+    <string>Pan Right</string>
+   </property>
+  </action>
+  <action name="actionPanLeft">
+   <property name="text">
+    <string>Pan Left</string>
    </property>
   </action>
  </widget>

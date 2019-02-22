@@ -1,54 +1,71 @@
 """ Graph widget showing a signal over time.
 
-Idea: use matplotlib for the plotting here.
 """
 
-from PyQt5 import QtWidgets
-from matplotlib.figure import Figure
-from matplotlib.widgets import Cursor
-from matplotlib.backends.backend_qt5agg import FigureCanvas
-# import vispy.mpl_plot as plt
+import math
+from .qt_wrapper import QtWidgets, QtGui, Qt
+from .mouse_select_widget import MouseSelectableWidget
+from ..data import TimeStamp
 
 
-class GraphWidget(QtWidgets.QWidget):
-    """ Widget showing a graph over time """
-    def __init__(self, parent=None):
-        super().__init__(parent=parent)
-        self.figure = Figure((5.0, 4.0), dpi=100)
-        self.canvas = FigureCanvas(self.figure)
-        self.canvas.mpl_connect('button_press_event', self.on_press)
-        self.canvas.mpl_connect('motion_notify_event', self.on_motion)
-        self.canvas.mpl_connect('button_release_event', self.on_release)
-        vbox = QtWidgets.QVBoxLayout(self)
-        vbox.addWidget(self.canvas)
+class GraphWidget(MouseSelectableWidget):
+    """ Implements plotting of a signal by using paintEvent.
+    """
+    def __init__(self, zoom_agent):
+        super().__init__(zoom_agent)
 
-    def on_press(self, event):
-        self.press_event = event
-        print('Mouse pressed', event)
+        # Create random data:
+        xs = range(300)
+        points1 = [(TimeStamp(x), math.sin(x * 0.2) * 80 + 40) for x in xs]
+        points2 = [(TimeStamp(x), math.sin(x * 0.6) * 30 + 20) for x in xs]
+        self.signals = [points1, points2]
 
-    def on_motion(self, event):
-        # print(event)
-        pass
+        policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        self.setSizePolicy(policy)
 
-    def on_release(self, event):
-        e1 = self.press_event
-        e2 = event
-        x1, x2 = e1.xdata, e2.xdata
-        self.axes.set_xlim(x1, x2)
-        print(event)
-        # TODO: adjust time scale
-        self.canvas.update()
+    def paintEvent(self, event):
+        super().paintEvent(event)
+        painter = QtGui.QPainter(self)
+        painter.fillRect(event.rect(), Qt.white)
+        # Paint the several thingies:
+        self.draw_grid(painter, event.rect())
+        self.draw_signals(painter, event.rect())
+        self.draw_cursor(painter, event.rect())
+    
+    def draw_signals(self, painter, rect):
+        for points in self.signals:
+            pen = QtGui.QPen(Qt.red)
+            pen.setWidth(2)
+            painter.setPen(pen)
 
-    def set_data(self, data):
-        # def mpl(self):
-        axes = self.figure.add_subplot(111)
-        axes.clear()
-        # print(data)
-        # axes.plot(d[1, 2, 3, 1, 2, 3, 4, 5, 3, 2, 4, 5], 'x-')
-        axes.plot(data, 'x-')
+            for p1, p2 in zip(points[:-1], points[1:]):
+                x1 = self.timestamp_to_pixel(p1[0])
+                x2 = self.timestamp_to_pixel(p2[0])
+                painter.drawLine(x1, p1[1], x2, p2[1])
+    
+    def draw_grid(self, painter, rect):
+        # First draw a lightgray grid
+        painter.setPen(Qt.lightGray)
 
-        self.axes = axes
+        # TODO: draw correct stuff
+        x0 = rect.x()
+        y0 = rect.y()
+        y2 = rect.y() + rect.height()
+        x2 = rect.x() + rect.width()
+        spacing = 13
+        for x in range(x0, x2, spacing):
+            painter.drawLine(x, y0, x, y2)
 
-        # Use cursor:
-        cursor = Cursor(
-            axes, useblit=True, color='red', linewidth=3, marker='x')
+        for y in range(y0, y2, spacing):
+            painter.drawLine(x0, y, x2, y)
+        
+        # Now drow major ticks:
+        pen = QtGui.QPen(Qt.black)
+        pen.setWidth(2)
+        painter.setPen(pen)
+        for x in range(x0, x2, spacing * 5):
+            painter.drawLine(x, y0, x, y2)
+
+        for y in range(y0, y2, spacing * 5):
+            painter.drawLine(x0, y, x2, y)
+

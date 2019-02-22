@@ -6,15 +6,15 @@ Two types of data are considered:
 
 """
 
-class TimeStamp:
-    pass
+from .duration import Duration
+from .timestamp import TimeSpan
+from .timestamp import TimeStamp
 
-
-class TimeSpan:
-    def __init__(self, begin, end):
-        self.begin = begin
-        self.end = end
-
+class LogRecord:
+    def __init__(self, timestamp, level, message):
+        self.timestamp = timestamp
+        self.level = level
+        self.message = message
 
 class DataStore:
     """ Some data backed thingy! """

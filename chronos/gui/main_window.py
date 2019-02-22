@@ -26,6 +26,10 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
         self.menuView.addAction(self.timeSpanDockWidget.toggleViewAction())
         self.menuView.addAction(self.signalsDockWidget.toggleViewAction())
 
+        self.actionZoomFit.triggered.connect(self._zoom_agent.zoom_fit)
+        self.actionZoomOut.triggered.connect(self._zoom_agent.zoom_out)
+        self.actionZoomIn.triggered.connect(self._zoom_agent.zoom_in)
+
     def load_data(self, data):
         # data = [1, 2, 3, 1, 2, 3, 4, 5, 3, 2, 4, 5]
         # axes = self.graph_widget.set_data(data)
