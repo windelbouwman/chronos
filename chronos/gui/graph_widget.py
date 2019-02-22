@@ -27,6 +27,7 @@ class GraphWidget(MouseSelectableWidget):
         super().paintEvent(event)
         painter = QtGui.QPainter(self)
         painter.fillRect(event.rect(), Qt.white)
+
         # Paint the several thingies:
         self.draw_grid(painter, event.rect())
         self.draw_signals(painter, event.rect())
@@ -68,4 +69,3 @@ class GraphWidget(MouseSelectableWidget):
 
         for y in range(y0, y2, spacing * 5):
             painter.drawLine(x0, y, x2, y)
-

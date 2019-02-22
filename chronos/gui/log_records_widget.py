@@ -12,7 +12,8 @@ class LogRecordsWidget(MouseSelectableWidget):
             LogRecord(TimeStamp(70), 3, "Event 2"),
             LogRecord(TimeStamp(200), 1, "Event 3"),
             LogRecord(TimeStamp(204), 1, "Event 4"),
-
+            LogRecord(TimeStamp(400), 1, "Event 5"),
+            LogRecord(TimeStamp(600), 1, "FUU"),
         ]
 
         policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
@@ -28,6 +29,7 @@ class LogRecordsWidget(MouseSelectableWidget):
 
     def draw_logs(self, painter, rect):
         """ Draw log records in w00t-style cool way. """
+        num_lanes = 5  # Try to print non-overlapping log messages.
         font_metrics = painter.fontMetrics()
         for record in self._logs:
             x = self.timestamp_to_pixel(record.timestamp)
@@ -37,8 +39,11 @@ class LogRecordsWidget(MouseSelectableWidget):
             # Draw marker:
             radius = 5
             painter.drawEllipse(x - radius / 2, 10 - radius / 2, radius, radius)
+
+            painter.setPen(Qt.green)
             painter.drawLine(x, 10, x+5, 30)
 
+            # TODO: properly draw balloons in lanes.
             # Draw text baloon:
             text_rect = font_metrics.boundingRect(record.message)
             text_rect.adjust(-4, -2, 4, 2)

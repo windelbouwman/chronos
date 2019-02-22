@@ -19,11 +19,26 @@ class Transform(metaclass=abc.ABCMeta):
 class TimeTransform(Transform):
     """ Transform timestamps into pixels.
     """
-    def __init__(self):
-        self._a = 1
-        self._b = 0
+    def __init__(self, a=1, b=0):
+        self._a = a
+        self._b = b
     
+    @classmethod
+    def from_points(cls, pixels, timespan):
+        # First, determine a:
+        # Solve line from two points
+        # y = a*x + b
+        dy = pixels[1] - pixels[0]
+        dx = timespan.end.stamp - timespan.begin.stamp
+        a = dy / dx
+        # b = y - a*x
+        b = pixels[0] - a*timespan.begin.stamp
+        # b2 = pixels[1] - a*timespan.end.stamp
+        # print('b=', b, b2)
+        return cls(a=a, b=b)
+
     def forward(self, value):
+        """ Take timestamp into pixel. """
         return value.stamp * self._a + self._b
     
     def backward(self, value):

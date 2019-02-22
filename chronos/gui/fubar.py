@@ -5,12 +5,18 @@ from ..data import TimeSpan
 from .mouse_select_widget import MouseSelectableWidget
 from .graph_widget import GraphWidget
 from .log_records_widget import LogRecordsWidget
+from .time_axis_widget import TimeAxisWidget
 
 
-class TraceVisualizer(QtWidgets.QWidget):
+class TraceVisualizer(QtWidgets.QFrame):
     """ Base visualizer.
     """
-    pass
+    def __init__(self):
+        super().__init__()
+        self.setBackgroundRole(QtGui.QPalette.Window)
+        self.setAutoFillBackground(True)
+        self.setFrameStyle(QtWidgets.QFrame.Raised | QtWidgets.QFrame.Panel)
+        self.setLineWidth(2)
 
 
 class LogTrace(TraceVisualizer):
@@ -47,52 +53,47 @@ class TimeScale:
     pass
 
 
-class TimeAxisWidget(MouseSelectableWidget):
-    """ Top (or bottom) time axis from left to right.
-    """
-    def __init__(self, zoom_agent):
-        super().__init__(zoom_agent)
-
-        policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Preferred)
-        self.setSizePolicy(policy)
-        self.setMinimumSize(0, 70)
-
-    def paintEvent(self, event):
-        super().paintEvent(event)
-        painter = QtGui.QPainter(self)
-        painter.fillRect(event.rect(), Qt.white)
-
-        self.draw_axis(painter)
-        self.draw_cursor(painter, event.rect())
-    
-    def draw_axis(self, painter):
-        painter.setPen(Qt.black)
-
-        # TODO: draw correct stuff
-        for tick in range(0, 600, 35):
-            painter.drawLine(tick, 0, tick, 20)
-            painter.drawText(tick, 30, str(tick))
-
-
 class Fubar(QtWidgets.QWidget):
     def __init__(self, zoom_agent):
         super().__init__()
         self._zoom_agent = zoom_agent
         self._traces = []
 
-        # TODO: scroll area with vbox layout for vertical scroll.
         l = QtWidgets.QVBoxLayout()
         self._axis_top = TimeAxisWidget(self._zoom_agent)
         l.addWidget(self._axis_top)
         self.setLayout(l)
 
+        # Scroll area:
+        self._scroll = QtWidgets.QScrollArea()
+        self._scroll.setBackgroundRole(QtGui.QPalette.Dark)
+        self._scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        l.addWidget(self._scroll)
+
+        # Inner widget:
+        self._inner = QtWidgets.QWidget()
+        self._scroll.setWidget(self._inner)
+        l2 = QtWidgets.QVBoxLayout()
+        self._inner.setLayout(l2)
+        self._inner.setMinimumWidth(400)
+        self._inner.setMinimumHeight(700)
+
         trace1 = SignalTrace(self._zoom_agent)
-        l.addWidget(trace1)
+        l2.addWidget(trace1)
         self._traces.append(trace1)
 
         log1 = LogTrace(self._zoom_agent)
-        l.addWidget(log1)
+        l2.addWidget(log1)
 
         trace2 = SignalTrace(self._zoom_agent)
-        l.addWidget(trace2)
+        l2.addWidget(trace2)
         self._traces.append(trace2)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+
+        # When resizing, ensure proper width of content view.
+        width = event.size().width() - 50
+        self._zoom_agent._width = width
+        self._inner.setMinimumWidth(width)
+        self._inner.setMaximumWidth(width)

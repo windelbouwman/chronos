@@ -6,6 +6,10 @@ from ..data import TimeSpan
 
 class MouseSelectableWidget(QtWidgets.QWidget):
     """ Widget which has mouse selection stuff.
+
+    Handles:
+    - Cursor location.
+    - Zoom selection block.
     """
     def __init__(self, zoom_agent):
         super().__init__()

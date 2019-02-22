@@ -37,29 +37,42 @@ class ZoomAgent(QtCore.QObject):
 
     def zoom_fit(self):
         self.logger.info('Zoom fit!!')
+
+        # TODO: fit to data, for now reset transform..
         self._transform._a = 1
+        self._transform._b = 0
         self.zoom_changed.emit()
+
+    def get_current_timespan(self):
+        # Calculate current timespan:
+        return TimeSpan(
+            self.pixel_to_timestamp(0),
+            self.pixel_to_timestamp(self._width))
 
     def zoom_out(self):
         self.logger.info('Zoom out!')
-        self._transform._a *= 0.9
-        self.zoom_changed.emit()
+        timespan = self.get_current_timespan()
+        duration = timespan.duration()
+        timespan.begin -= duration / 2
+        timespan.end += duration / 2
+        self.zoom_to(timespan)
 
     def zoom_in(self):
         self.logger.info('Zoom in!')
-        self._transform._a *= 1.2
-        self.zoom_changed.emit()
+        timespan = self.get_current_timespan()
+        duration = timespan.duration()
+        timespan.begin += duration / 3
+        timespan.end -= duration / 3
+        self.zoom_to(timespan)
 
     def zoom_to(self, timespan):
+        """ Zoom to the given timespan. """
         # Calculate new factor and offset values!
-        # Calculate current timespan:
-        current_timespan = TimeSpan(
-            self.pixel_to_timestamp(0),
-            self.pixel_to_timestamp(self._width))
+        current_timespan = self.get_current_timespan()
         self.logger.info('Zoom from %s to %s', current_timespan, timespan)
-        
-        self._transform._a = timespan.duration().to_seconds() / self._width
 
+        self._transform = TimeTransform.from_points((0, self._width), timespan)
+        
         self.zoom_changed.emit()
     
     def set_selection(self, timespan):

@@ -12,9 +12,20 @@ class TimeStamp:
         return self.stamp > other.stamp
     
     def __sub__(self, other):
-        assert isinstance(other, TimeStamp)
-        return Duration(self.stamp - other.stamp)
+        if isinstance(other, TimeStamp):
+            return Duration(self.stamp - other.stamp)
+        else:
+            raise NotImplementedError()
 
+    def __isub__(self, other):
+        assert isinstance(other, Duration)
+        self.stamp -= other.attos
+        return self
+
+    def __iadd__(self, other):
+        assert isinstance(other, Duration)
+        self.stamp += other.attos
+        return self
 
 class TimeSpan:
     def __init__(self, begin, end):
