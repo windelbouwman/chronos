@@ -1,4 +1,3 @@
-
 import math
 from ..data import TimeStamp
 from .transform import TimeTransform

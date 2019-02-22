@@ -1,4 +1,3 @@
-
 import math
 from .qt_wrapper import QtWidgets, QtGui, QtCore, Qt
 from ..data import TimeSpan
@@ -11,6 +10,7 @@ from .time_axis_widget import TimeAxisWidget
 class TraceVisualizer(QtWidgets.QFrame):
     """ Base visualizer.
     """
+
     def __init__(self):
         super().__init__()
         self.setBackgroundRole(QtGui.QPalette.Window)
@@ -22,6 +22,7 @@ class TraceVisualizer(QtWidgets.QFrame):
 class LogTrace(TraceVisualizer):
     """ Visualizer for a series of log messages.
     """
+
     def __init__(self, zoom_agent):
         super().__init__()
         l = QtWidgets.QHBoxLayout()
@@ -37,6 +38,7 @@ class LogTrace(TraceVisualizer):
 class SignalTrace(TraceVisualizer):
     """ Visualizer for one or more signals.
     """
+
     def __init__(self, zoom_agent):
         super().__init__()
         l = QtWidgets.QHBoxLayout()

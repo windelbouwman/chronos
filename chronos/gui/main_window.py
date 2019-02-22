@@ -9,9 +9,10 @@ from .zoom_agent import ZoomAgent
 
 class ChronosMainWindow(QtWidgets.QMainWindow):
     """ Main window which includes a lot of sub windows """
+
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        uic.loadUi('src/gui/mainwindow.ui', self)
+        uic.loadUi("src/gui/mainwindow.ui", self)
         # self.graph_widget = GraphWidget(self)
         self._zoom_agent = ZoomAgent()
         self.bar_charts = Fubar(self._zoom_agent)

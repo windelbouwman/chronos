@@ -10,18 +10,19 @@ from ..data import TimeSpan, TimeStamp, Duration
 
 
 RANGES = [
-    'last 30 minutes',
-    'last 15 minutes',
-    'past hour',
-    'last 30 nanoseconds',
-    'last week',
-    'last month',
-    'last year',
+    "last 30 minutes",
+    "last 15 minutes",
+    "past hour",
+    "last 30 nanoseconds",
+    "last week",
+    "last month",
+    "last year",
 ]
 
 
 class TimeSpanQuick(QtWidgets.QWidget):
     """ Quick tab for often used time spans """
+
     def __init__(self, update_function):
         super().__init__()
         l = QtWidgets.QGridLayout(self)
@@ -36,13 +37,14 @@ class TimeSpanQuick(QtWidgets.QWidget):
 
 class TimeSpanWidget(QtWidgets.QWidget):
     """ Show the current timespan and provide options to modify it. """
+
     def __init__(self, zoom_agent):
         super().__init__()
         self._zoom_agent = zoom_agent
         vbox = QtWidgets.QVBoxLayout(self)
         self.range_button = QtWidgets.QPushButton()
         self.range_button.setCheckable(True)
-        self.range_button.setText('Last week')
+        self.range_button.setText("Last week")
         vbox.addWidget(self.range_button)
         self.quick = TimeSpanQuick(self.updateTimespan)
         self.quick.setVisible(False)

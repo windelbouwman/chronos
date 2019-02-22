@@ -11,6 +11,7 @@ from ..data import TimeStamp
 class GraphWidget(MouseSelectableWidget):
     """ Implements plotting of a signal by using paintEvent.
     """
+
     def __init__(self, zoom_agent):
         super().__init__(zoom_agent)
 
@@ -20,7 +21,10 @@ class GraphWidget(MouseSelectableWidget):
         points2 = [(TimeStamp(x), math.sin(x * 0.6) * 30 + 20) for x in xs]
         self.signals = [points1, points2]
 
-        policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        policy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.MinimumExpanding,
+            QtWidgets.QSizePolicy.MinimumExpanding,
+        )
         self.setSizePolicy(policy)
 
     def paintEvent(self, event):
@@ -32,7 +36,7 @@ class GraphWidget(MouseSelectableWidget):
         self.draw_grid(painter, event.rect())
         self.draw_signals(painter, event.rect())
         self.draw_cursor(painter, event.rect())
-    
+
     def draw_signals(self, painter, rect):
         for points in self.signals:
             pen = QtGui.QPen(Qt.red)
@@ -43,7 +47,7 @@ class GraphWidget(MouseSelectableWidget):
                 x1 = self.timestamp_to_pixel(p1[0])
                 x2 = self.timestamp_to_pixel(p2[0])
                 painter.drawLine(x1, p1[1], x2, p2[1])
-    
+
     def draw_grid(self, painter, rect):
         # First draw a lightgray grid
         painter.setPen(Qt.lightGray)
@@ -59,7 +63,7 @@ class GraphWidget(MouseSelectableWidget):
 
         for y in range(y0, y2, spacing):
             painter.drawLine(x0, y, x2, y)
-        
+
         # Now drow major ticks:
         pen = QtGui.QPen(Qt.black)
         pen.setWidth(2)

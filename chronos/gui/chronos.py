@@ -7,4 +7,3 @@ from PyQt5 import QtWidgets
 
 class ChronosWidget(QtWidgets.QWidget):
     pass
-

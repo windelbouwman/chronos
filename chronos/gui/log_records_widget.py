@@ -1,4 +1,3 @@
-
 from .qt_wrapper import QtGui, Qt, QtWidgets
 from .mouse_select_widget import MouseSelectableWidget
 from ..data import LogRecord, TimeStamp
@@ -16,7 +15,10 @@ class LogRecordsWidget(MouseSelectableWidget):
             LogRecord(TimeStamp(600), 1, "FUU"),
         ]
 
-        policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        policy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.MinimumExpanding,
+            QtWidgets.QSizePolicy.MinimumExpanding,
+        )
         self.setSizePolicy(policy)
 
     def paintEvent(self, event):
@@ -41,13 +43,12 @@ class LogRecordsWidget(MouseSelectableWidget):
             painter.drawEllipse(x - radius / 2, 10 - radius / 2, radius, radius)
 
             painter.setPen(Qt.green)
-            painter.drawLine(x, 10, x+5, 30)
+            painter.drawLine(x, 10, x + 5, 30)
 
             # TODO: properly draw balloons in lanes.
             # Draw text baloon:
             text_rect = font_metrics.boundingRect(record.message)
             text_rect.adjust(-4, -2, 4, 2)
-            text_rect.translate(x+5, 30)
+            text_rect.translate(x + 5, 30)
             painter.drawRoundedRect(text_rect, 4, 4)
-            painter.drawText(x+5, 30, record.message)
-
+            painter.drawText(x + 5, 30, record.message)

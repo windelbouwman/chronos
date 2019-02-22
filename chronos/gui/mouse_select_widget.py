@@ -1,4 +1,3 @@
-
 import math
 from .qt_wrapper import QtWidgets, QtGui, QtCore, Qt
 from ..data import TimeSpan
@@ -11,6 +10,7 @@ class MouseSelectableWidget(QtWidgets.QWidget):
     - Cursor location.
     - Zoom selection block.
     """
+
     def __init__(self, zoom_agent):
         super().__init__()
         self._zoom_agent = zoom_agent
@@ -36,7 +36,7 @@ class MouseSelectableWidget(QtWidgets.QWidget):
 
     def enterEvent(self, event):
         super().enterEvent(event)
-    
+
     def leaveEvent(self, event):
         super().leaveEvent(event)
         self._zoom_agent.hide_cursor()
@@ -45,7 +45,7 @@ class MouseSelectableWidget(QtWidgets.QWidget):
         super().mousePressEvent(event)
         self._cursor_x2 = event.x()
         self.update()
-    
+
     def mouseReleaseEvent(self, event):
         super().mouseReleaseEvent(event)
         self.emit_zoom(event.x())
@@ -61,7 +61,7 @@ class MouseSelectableWidget(QtWidgets.QWidget):
             x1 = x
             x2 = self._cursor_x2
         else:
-            print('No zooming')
+            print("No zooming")
             return
 
         zoom_begin = self.pixel_to_timestamp(x1)
@@ -78,7 +78,9 @@ class MouseSelectableWidget(QtWidgets.QWidget):
         if self._cursor_x2 is not None:
             x1 = min(x, self._cursor_x2)
             x2 = max(x, self._cursor_x2)
-            timespan = TimeSpan(self.pixel_to_timestamp(x1), self.pixel_to_timestamp(x2))
+            timespan = TimeSpan(
+                self.pixel_to_timestamp(x1), self.pixel_to_timestamp(x2)
+            )
             self._zoom_agent.set_selection(timespan)
 
     def on_cursor_changed(self, timestamp):
@@ -94,7 +96,7 @@ class MouseSelectableWidget(QtWidgets.QWidget):
         """ Current selection changed! """
         self._selection = timespan
         self.update()
-    
+
     def on_selection_removed(self):
         self._selection = None
         self.update()
@@ -114,7 +116,7 @@ class MouseSelectableWidget(QtWidgets.QWidget):
             brush = QtGui.QBrush(color)
             selection_rect = QtCore.QRect(x, rect.y(), w, rect.height())
             painter.fillRect(selection_rect, brush)
-    
+
         if self._cursor is not None:
             x = self.timestamp_to_pixel(self._cursor)
             painter.setPen(Qt.blue)
