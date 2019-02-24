@@ -1,10 +1,12 @@
-from PyQt5 import uic, QtWidgets
+from PyQt5 import uic
+from .qt_wrapper import QtWidgets
 
 # from .graph_widget import GraphWidget
 from .fubar import Fubar
 from .timespan_widget import TimeSpanWidget
 from .data_source_model import DataSourceModel
 from .zoom_agent import ZoomAgent
+from ..data_plugins.demo import DemoDataSource
 
 
 class ChronosMainWindow(QtWidgets.QMainWindow):
@@ -30,6 +32,17 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
         self.actionZoomFit.triggered.connect(self._zoom_agent.zoom_fit)
         self.actionZoomOut.triggered.connect(self._zoom_agent.zoom_out)
         self.actionZoomIn.triggered.connect(self._zoom_agent.zoom_in)
+        self.actionPanLeft.triggered.connect(self._zoom_agent.pan_left)
+        self.actionPanRight.triggered.connect(self._zoom_agent.pan_right)
+
+        # What must happen when data source is added:
+        self.pushButtonAddDataSource.clicked.connect(self._add_data_source)
+
+    def _add_data_source(self):
+        print("add data")
+        # TODO: show wizard to select proper plugin.
+        self.signal_model.sources.append(DemoDataSource())
+        self.signal_model.modelReset.emit()
 
     def load_data(self, data):
         # data = [1, 2, 3, 1, 2, 3, 4, 5, 3, 2, 4, 5]

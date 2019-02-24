@@ -43,12 +43,19 @@ class SignalTrace(TraceVisualizer):
         super().__init__()
         l = QtWidgets.QHBoxLayout()
         self.setLayout(l)
+        # Some controls:
         self._label = QtWidgets.QLabel()
         self._label.setText("FubarPlot12345")
         l.addWidget(self._label)
 
+        self._frame = QtWidgets.QFrame()
+        self._frame.setLineWidth(2)
+        self._frame.setFrameStyle(QtWidgets.QFrame.Sunken | QtWidgets.QFrame.Panel)
+        l.addWidget(self._frame)
+        l2 = QtWidgets.QVBoxLayout()
+        self._frame.setLayout(l2)
         self._graph = GraphWidget(zoom_agent)
-        l.addWidget(self._graph)
+        l2.addWidget(self._graph)
 
 
 class TimeScale:
@@ -78,7 +85,7 @@ class Fubar(QtWidgets.QWidget):
         l2 = QtWidgets.QVBoxLayout()
         self._inner.setLayout(l2)
         self._inner.setMinimumWidth(400)
-        self._inner.setMinimumHeight(700)
+        self._inner.setMinimumHeight(1000)
 
         trace1 = SignalTrace(self._zoom_agent)
         l2.addWidget(trace1)

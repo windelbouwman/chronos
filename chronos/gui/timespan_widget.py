@@ -4,7 +4,7 @@ Implement a convenient time period selection box.
 """
 
 import math
-from PyQt5 import QtWidgets, QtCore
+from .qt_wrapper import QtWidgets, QtCore
 
 from ..data import TimeSpan, TimeStamp, Duration
 

@@ -78,6 +78,20 @@
    <widget class="QWidget" name="dockWidgetContents_2">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
+      <widget class="QPushButton" name="pushButtonAddDataSource">
+       <property name="text">
+        <string>Add datasource</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButtonExpandAll">
+       <property name="text">
+        <string>Expand all</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QTreeView" name="signalsTreeView"/>
      </item>
     </layout>
@@ -132,5 +146,22 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pushButtonExpandAll</sender>
+   <signal>clicked()</signal>
+   <receiver>signalsTreeView</receiver>
+   <slot>expandAll()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>89</x>
+     <y>160</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>94</x>
+     <y>234</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

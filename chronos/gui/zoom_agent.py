@@ -35,6 +35,11 @@ class ZoomAgent(QtCore.QObject):
     def timestamp_to_pixel(self, value):
         return self._transform.forward(value)
 
+    def pixels_to_duration(self, pixels):
+        t0 = self.pixel_to_timestamp(0)
+        t1 = self.pixel_to_timestamp(pixels)
+        return t1 - t0
+
     def zoom_fit(self):
         self.logger.info("Zoom fit!!")
 
@@ -63,6 +68,22 @@ class ZoomAgent(QtCore.QObject):
         duration = timespan.duration()
         timespan.begin += duration / 3
         timespan.end -= duration / 3
+        self.zoom_to(timespan)
+
+    def pan_left(self):
+        self.logger.info("Pan left!")
+        timespan = self.get_current_timespan()
+        duration = timespan.duration()
+        timespan.begin -= duration / 2
+        timespan.end -= duration / 2
+        self.zoom_to(timespan)
+
+    def pan_right(self):
+        self.logger.info("Pan right!")
+        timespan = self.get_current_timespan()
+        duration = timespan.duration()
+        timespan.begin += duration / 2
+        timespan.end += duration / 2
         self.zoom_to(timespan)
 
     def zoom_to(self, timespan):

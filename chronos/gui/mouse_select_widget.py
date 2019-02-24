@@ -34,6 +34,9 @@ class MouseSelectableWidget(QtWidgets.QWidget):
     def timestamp_to_pixel(self, timestamp):
         return self._zoom_agent.timestamp_to_pixel(timestamp)
 
+    def pixels_to_duration(self, pixels):
+        return self._zoom_agent.pixels_to_duration(pixels)
+
     def enterEvent(self, event):
         super().enterEvent(event)
 

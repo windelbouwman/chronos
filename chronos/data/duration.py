@@ -1,9 +1,12 @@
-
 class Duration:
     """ Relative duration of time.
     """
+
     def __init__(self, attos):
         self.attos = attos
+
+    def __repr__(self):
+        return f"Duration[{self.attos}]"
 
     @classmethod
     def from_days(cls, days):
@@ -12,7 +15,7 @@ class Duration:
     @classmethod
     def from_hours(cls, hours):
         return cls.from_minutes(hours * 60)
-    
+
     @classmethod
     def from_minutes(cls, minutes):
         return cls.from_seconds(minutes * 60)
@@ -31,3 +34,7 @@ class Duration:
     def __truediv__(self, other):
         assert isinstance(other, (int, float))
         return Duration(self.attos / other)
+
+    def __lt__(self, other):
+        assert isinstance(other, Duration)
+        return self.attos < other.attos

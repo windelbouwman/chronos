@@ -7,8 +7,11 @@ Two types of data are considered:
 """
 
 from .duration import Duration
-from .timestamp import TimeSpan
+from .timespan import TimeSpan
 from .timestamp import TimeStamp
+from .trace import TraceDataSource, TraceGroup
+from .trace import Trace, SignalTrace
+from .trace import TreeItem
 
 class LogRecord:
     def __init__(self, timestamp, level, message):
@@ -16,13 +19,15 @@ class LogRecord:
         self.level = level
         self.message = message
 
+
 class DataStore:
     """ Some data backed thingy! """
+
     def __init__(self):
         pass
-    
+
     def get_data(self):
         return []
-    
+
     def add_data(self):
         pass
