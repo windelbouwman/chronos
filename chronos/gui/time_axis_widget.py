@@ -24,38 +24,21 @@ class TimeAxisWidget(MouseSelectableWidget):
         self.draw_axis(painter, event.rect())
         self.draw_cursor(painter, event.rect())
 
+
+
     def draw_axis(self, painter, rect):
         painter.setPen(Qt.black)
 
         # Determine tick per scale some how?
+        major_ticks = self.calc_tick()
 
-        tick_space = 35  # Minimum amount of pixels between tickzz
-        duration = self.pixels_to_duration(tick_space)
-        # print(duration)
-        # Round duration upwards to sensible multiple:
-        scales = [
-            Duration.from_seconds(1),
-            Duration.from_seconds(10),
-            Duration.from_minutes(1),
-            Duration.from_minutes(5),
-        ]
-        for scale in scales:
-            if duration < scale:
-                break
-
-        # print(scale)
-        timespan = TimeSpan(
-            self.pixel_to_timestamp(rect.x()),
-            self.pixel_to_timestamp(rect.x() + rect.width()),
-        )
-        ts = timespan.begin
-        ts.round_down(scale)
-        while ts < timespan.end:
-            tick = self.timestamp_to_pixel(ts)
-            painter.drawLine(tick, 0, tick, 20)
-            painter.drawText(tick, 30, str(ts))
-
-            ts += scale
+        fontMetrics = painter.fontMetrics()
+        for tick in major_ticks:
+            x = self.timestamp_to_pixel(tick)
+            painter.drawLine(x, 0, x, 10)
+            label_text = str(tick.stamp)
+            rect = fontMetrics.boundingRect(label_text)
+            painter.drawText(x - rect.width()/2, 30, label_text)
 
         # TODO: draw correct stuff
         # for tick in range(0, 600, 35):

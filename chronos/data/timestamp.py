@@ -10,6 +10,9 @@ class TimeStamp:
         stamp = 1
         return cls(stamp)
 
+    def copy(self):
+        return TimeStamp(self.stamp)
+
     def __str__(self):
         return f"t={self.stamp}"
 

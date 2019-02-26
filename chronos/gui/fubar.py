@@ -17,6 +17,7 @@ class TraceVisualizer(QtWidgets.QFrame):
         self.setAutoFillBackground(True)
         self.setFrameStyle(QtWidgets.QFrame.Raised | QtWidgets.QFrame.Panel)
         self.setLineWidth(2)
+        
 
 
 class LogTrace(TraceVisualizer):
@@ -57,6 +58,21 @@ class SignalTrace(TraceVisualizer):
         self._graph = GraphWidget(zoom_agent)
         l2.addWidget(self._graph)
 
+        self.setAcceptDrops(True)
+    
+    def dragEnterEvent(self, event):
+        mimeData = event.mimeData()
+        if mimeData.hasFormat('application/x-fubar'):
+            event.accept()
+
+    def dropEvent(self, event):
+        mimeData = event.mimeData()
+        if mimeData.hasFormat('application/x-fubar'):
+            data = mimeData.data('application/x-fubar')
+            print(data)
+            trace = data
+            self._graph.add_trace(trace)
+
 
 class TimeScale:
     pass
@@ -69,8 +85,11 @@ class Fubar(QtWidgets.QWidget):
         self._traces = []
 
         l = QtWidgets.QVBoxLayout()
+        l2 = QtWidgets.QHBoxLayout()
+        l.addLayout(l2)
+        l2.addSpacing(100)
         self._axis_top = TimeAxisWidget(self._zoom_agent)
-        l.addWidget(self._axis_top)
+        l2.addWidget(self._axis_top)
         self.setLayout(l)
 
         # Scroll area:
@@ -82,21 +101,27 @@ class Fubar(QtWidgets.QWidget):
         # Inner widget:
         self._inner = QtWidgets.QWidget()
         self._scroll.setWidget(self._inner)
-        l2 = QtWidgets.QVBoxLayout()
-        self._inner.setLayout(l2)
+        self._trace_layout = QtWidgets.QVBoxLayout()
+        self._inner.setLayout(self._trace_layout)
         self._inner.setMinimumWidth(400)
         self._inner.setMinimumHeight(1000)
 
         trace1 = SignalTrace(self._zoom_agent)
-        l2.addWidget(trace1)
+        self._trace_layout.addWidget(trace1)
         self._traces.append(trace1)
 
         log1 = LogTrace(self._zoom_agent)
-        l2.addWidget(log1)
+        self._trace_layout.addWidget(log1)
 
-        trace2 = SignalTrace(self._zoom_agent)
-        l2.addWidget(trace2)
-        self._traces.append(trace2)
+        # trace2 = SignalTrace(self._zoom_agent)
+        # self.trace_layout.addWidget(trace2)
+        # self._traces.append(trace2)
+
+    def add_trace(self, trace):
+        """ Add a trace item. """
+        trace_visual = SignalTrace(self._zoom_agent)
+        self._trace_layout.addWidget(trace_visual)
+        self._traces.append(trace_visual)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)

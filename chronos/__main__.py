@@ -33,8 +33,6 @@ def main():
     w = ChronosMainWindow()
     w.show()
     splash.finish(w)
-    # data = load_data('demos/noize.hdf5')
-    # w.load_data(data)
     app.exec()
 
 

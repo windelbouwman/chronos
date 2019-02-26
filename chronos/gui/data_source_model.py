@@ -95,3 +95,19 @@ class DataSourceModel(QtCore.QAbstractItemModel):
             else:  # datasize
                 value = str(tree_item.size)
             return value
+
+    def flags(self, index):
+        flags = super().flags(index)
+        if index.isValid():
+            flags |= Qt.ItemIsDragEnabled
+        return flags
+    
+    def mimeTypes(self):
+        return ['application/x-fubar']
+    
+    def mimeData(self, indexes):
+        mimeData = QtCore.QMimeData()
+        # TODO: encode useful stuff!
+        encodedData = 'woei!'.encode('ascii')
+        mimeData.setData('application/x-fubar', encodedData)
+        return mimeData

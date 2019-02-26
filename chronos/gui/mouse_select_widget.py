@@ -1,6 +1,6 @@
 import math
 from .qt_wrapper import QtWidgets, QtGui, QtCore, Qt
-from ..data import TimeSpan
+from ..data import TimeSpan, Duration
 
 
 class MouseSelectableWidget(QtWidgets.QWidget):
@@ -37,6 +37,44 @@ class MouseSelectableWidget(QtWidgets.QWidget):
     def pixels_to_duration(self, pixels):
         return self._zoom_agent.pixels_to_duration(pixels)
 
+    def calc_tick(self):
+        timespan = TimeSpan(
+            self.pixel_to_timestamp(0),
+            self.pixel_to_timestamp(self._zoom_agent._width),
+        )
+
+        tick_space = 50  # Minimum amount of pixels between tickzz
+        duration = self.pixels_to_duration(tick_space)
+        # print(duration)
+        # Round duration upwards to sensible multiple:
+        scales = [
+            Duration.from_seconds(0.0001),
+            Duration.from_seconds(0.001),
+            Duration.from_seconds(0.01),
+            Duration.from_seconds(0.1),
+            Duration.from_seconds(1),
+            Duration.from_seconds(10),
+            Duration.from_minutes(1),
+            Duration.from_minutes(5),
+            Duration.from_hours(1),
+            Duration.from_days(1),
+        ]
+        for scale in scales:
+            if duration < scale:
+                break
+
+        # print(scale)
+        ts = timespan.begin
+        ts.round_down(scale)
+
+        # Create ticks:
+        ticks = []
+        while ts < timespan.end:
+            ticks.append(ts.copy())
+            ts += scale
+
+        return ticks
+
     def enterEvent(self, event):
         super().enterEvent(event)
 
@@ -54,7 +92,26 @@ class MouseSelectableWidget(QtWidgets.QWidget):
         self.emit_zoom(event.x())
         self._cursor_x2 = None
         self._zoom_agent.clear_selection()
-        self.update()
+
+    def wheelEvent(self, event):
+        super().wheelEvent(event)
+        print('wheel!', event.angleDelta())
+        event.accept()
+        timespan = TimeSpan(
+            self.pixel_to_timestamp(0),
+            self.pixel_to_timestamp(self._zoom_agent._width),
+        )
+        duration = timespan.duration()
+        duration = duration / 2
+        center = self.pixel_to_timestamp(event.x())
+        print(center, duration)
+
+
+        # zoom_begin = self.pixel_to_timestamp(x1)
+        # zoom_end = self.pixel_to_timestamp(x2)
+        # zoom_range = TimeSpan(zoom_begin, zoom_end)
+        # self._zoom_agent.zoom_to(zoom_range)
+
 
     def emit_zoom(self, x):
         if x > self._cursor_x2:

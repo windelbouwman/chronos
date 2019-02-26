@@ -20,12 +20,17 @@ class GraphWidget(MouseSelectableWidget):
         points1 = [(TimeStamp(x), math.sin(x * 0.2) * 80 + 40) for x in xs]
         points2 = [(TimeStamp(x), math.sin(x * 0.6) * 30 + 20) for x in xs]
         self.signals = [points1, points2]
+        self._traces = []
 
         policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.MinimumExpanding,
             QtWidgets.QSizePolicy.MinimumExpanding,
         )
         self.setSizePolicy(policy)
+
+    def add_trace(self, trace):
+        self._traces.append(trace)
+        self.update()
 
     def sizeHint(self):
         return QtCore.QSize(40, 300)
@@ -66,8 +71,9 @@ class GraphWidget(MouseSelectableWidget):
         y2 = rect.y() + rect.height()
         x2 = rect.x() + rect.width()
         spacing = 13
-        for x in range(x0, x2, spacing):
-            painter.drawLine(x, y0, x, y2)
+
+        #for x in range(x0, x2, spacing):
+        #    painter.drawLine(x, y0, x, y2)
 
         for y in range(y0, y2, spacing):
             painter.drawLine(x0, y, x2, y)
@@ -76,7 +82,10 @@ class GraphWidget(MouseSelectableWidget):
         pen = QtGui.QPen(Qt.black)
         pen.setWidth(2)
         painter.setPen(pen)
-        for x in range(x0, x2, spacing * 5):
+        major_ticks = self.calc_tick()
+        # for x in range(x0, x2, spacing * 5):
+        for tick in major_ticks:
+            x = self.timestamp_to_pixel(tick)
             painter.drawLine(x, y0, x, y2)
 
         for y in range(y0, y2, spacing * 5):
