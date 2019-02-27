@@ -12,6 +12,8 @@ from .timestamp import TimeStamp
 from .trace import TraceDataSource, TraceGroup
 from .trace import Trace, SignalTrace
 from .trace import TreeItem
+from .data_store import DataStore
+
 
 class LogRecord:
     def __init__(self, timestamp, level, message):
@@ -20,14 +22,3 @@ class LogRecord:
         self.message = message
 
 
-class DataStore:
-    """ Some data backed thingy! """
-
-    def __init__(self):
-        pass
-
-    def get_data(self):
-        return []
-
-    def add_data(self):
-        pass

@@ -22,13 +22,21 @@ class TimeStamp:
     def __sub__(self, other):
         if isinstance(other, TimeStamp):
             return Duration(self.stamp - other.stamp)
+        elif isinstance(other, Duration):
+            return TimeStamp(self.stamp - other.attos)
         else:
-            raise NotImplementedError()
+            return NotImplemented
 
     def __isub__(self, other):
         assert isinstance(other, Duration)
         self.stamp -= other.attos
         return self
+
+    def __add__(self, other):
+        if isinstance(other, Duration):
+            return TimeStamp(self.stamp + other.attos)
+        else:
+            return NotImplemented
 
     def __iadd__(self, other):
         assert isinstance(other, Duration)

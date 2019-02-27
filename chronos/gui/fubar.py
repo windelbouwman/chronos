@@ -1,4 +1,5 @@
-import math
+import json
+from urllib.parse import urlparse
 from .qt_wrapper import QtWidgets, QtGui, QtCore, Qt
 from ..data import TimeSpan
 from .mouse_select_widget import MouseSelectableWidget
@@ -36,12 +37,13 @@ class LogTrace(TraceVisualizer):
         l.addWidget(self._graph)
 
 
-class SignalTrace(TraceVisualizer):
+class SignalTraceVisualizer(TraceVisualizer):
     """ Visualizer for one or more signals.
     """
 
-    def __init__(self, zoom_agent):
+    def __init__(self, zoom_agent, database):
         super().__init__()
+        self._database = database
         l = QtWidgets.QHBoxLayout()
         self.setLayout(l)
         # Some controls:
@@ -68,10 +70,18 @@ class SignalTrace(TraceVisualizer):
     def dropEvent(self, event):
         mimeData = event.mimeData()
         if mimeData.hasFormat('application/x-fubar'):
-            data = mimeData.data('application/x-fubar')
-            print(data)
-            trace = data
-            self._graph.add_trace(trace)
+            data = mimeData.data('application/x-fubar').data()
+            uris = json.loads(data.decode('ascii'))
+            for uri in uris:
+                print('Dropping', uri)
+                o = urlparse(uri)
+                # print(o)
+                if o.scheme == 'trace':
+                    trace_id = int(o.netloc)
+                    trace = self._database.get_trace(trace_id)
+                    self._graph.add_trace(trace)
+                else:
+                    print(f'Not supported scheme: {o.scheme}')
 
 
 class TimeScale:
@@ -79,9 +89,10 @@ class TimeScale:
 
 
 class Fubar(QtWidgets.QWidget):
-    def __init__(self, zoom_agent):
+    def __init__(self, zoom_agent, database):
         super().__init__()
         self._zoom_agent = zoom_agent
+        self._database = database
         self._traces = []
 
         l = QtWidgets.QVBoxLayout()
@@ -106,7 +117,7 @@ class Fubar(QtWidgets.QWidget):
         self._inner.setMinimumWidth(400)
         self._inner.setMinimumHeight(1000)
 
-        trace1 = SignalTrace(self._zoom_agent)
+        trace1 = SignalTraceVisualizer(self._zoom_agent, database)
         self._trace_layout.addWidget(trace1)
         self._traces.append(trace1)
 
@@ -119,7 +130,7 @@ class Fubar(QtWidgets.QWidget):
 
     def add_trace(self, trace):
         """ Add a trace item. """
-        trace_visual = SignalTrace(self._zoom_agent)
+        trace_visual = SignalTraceVisualizer(self._zoom_agent, database)
         self._trace_layout.addWidget(trace_visual)
         self._traces.append(trace_visual)
 

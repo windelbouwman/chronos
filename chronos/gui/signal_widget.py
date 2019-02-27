@@ -5,8 +5,9 @@ from ..data_plugins.demo import DemoDataSource
 
 
 class SignalSourceWidget(QtWidgets.QWidget):
-    def __init__(self):
+    def __init__(self, database):
         super().__init__()
+        self._database = database
         l = QtWidgets.QVBoxLayout()
         self.setLayout(l)
 
@@ -19,7 +20,7 @@ class SignalSourceWidget(QtWidgets.QWidget):
         self.signalsTreeView = QtWidgets.QTreeView()
         l.addWidget(self.signalsTreeView)
 
-        self.signal_model = DataSourceModel()
+        self.signal_model = DataSourceModel(database)
         self.signalsTreeView.setModel(self.signal_model)
 
         self.signalsTreeView.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -33,7 +34,7 @@ class SignalSourceWidget(QtWidgets.QWidget):
     def _add_data_source(self):
         print("add data")
         # TODO: show wizard to select proper plugin.
-        self.signal_model.sources.append(DemoDataSource())
+        self.signal_model._database.sources.append(DemoDataSource())
         self.signal_model.modelReset.emit()
 
     def _on_context_menu(self, pos):

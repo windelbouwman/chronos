@@ -16,6 +16,12 @@ class TreeItem:
             item.parent = self
             self.children.append(item)
 
+    def dfs(self):
+        for c in self.children:
+            for i in c.dfs():
+                yield i
+        yield self
+
     @property
     def size(self):
         return sum(c.size for c in self.children)
@@ -32,6 +38,9 @@ class TraceDataSource(TreeItem):
         super().__init__()
         self.name = name
 
+    def get_uri(self):
+        return 'tracedatasource://{}'.format(id(self))
+
 
 class TraceGroup(TreeItem):
     """ A trace group / folder. """
@@ -39,6 +48,9 @@ class TraceGroup(TreeItem):
     def __init__(self, name):
         super().__init__()
         self.name = name
+
+    def get_uri(self):
+        return 'tracegroup://{}'.format(id(self))
 
 
 class Trace(TreeItem):
@@ -55,7 +67,13 @@ class Trace(TreeItem):
         return len(self.samples) * 8 + 13
 
     def add(self, sample):
-        self.samples.append(sample)
+        if isinstance(sample, list):
+            self.samples.extend(sample)
+        else:
+            self.samples.append(sample)
+
+    def get_uri(self):
+        return 'trace://{}'.format(id(self))
 
 
 def EventTrace(Trace):

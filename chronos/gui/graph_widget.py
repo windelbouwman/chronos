@@ -5,7 +5,7 @@
 import math
 from .qt_wrapper import QtWidgets, QtGui, Qt, QtCore
 from .mouse_select_widget import MouseSelectableWidget
-from ..data import TimeStamp
+from ..data import TimeStamp, Trace
 
 
 class GraphWidget(MouseSelectableWidget):
@@ -14,12 +14,6 @@ class GraphWidget(MouseSelectableWidget):
 
     def __init__(self, zoom_agent):
         super().__init__(zoom_agent)
-
-        # Create random data:
-        xs = range(300)
-        points1 = [(TimeStamp(x), math.sin(x * 0.2) * 80 + 40) for x in xs]
-        points2 = [(TimeStamp(x), math.sin(x * 0.6) * 30 + 20) for x in xs]
-        self.signals = [points1, points2]
         self._traces = []
 
         policy = QtWidgets.QSizePolicy(
@@ -29,6 +23,8 @@ class GraphWidget(MouseSelectableWidget):
         self.setSizePolicy(policy)
 
     def add_trace(self, trace):
+        """ Add a trace to this graph. """
+        assert isinstance(trace, Trace)
         self._traces.append(trace)
         self.update()
 
@@ -45,9 +41,15 @@ class GraphWidget(MouseSelectableWidget):
         self.draw_value_axis(painter, event.rect())
         self.draw_signals(painter, event.rect())
         self.draw_cursor(painter, event.rect())
+        self.draw_legend(painter, event.rect())
 
     def draw_signals(self, painter, rect):
-        for points in self.signals:
+        for trace in self._traces:
+            # TODO: instead of getting all samples, only get
+            # samples in view, and also resample the samples
+            # so that we do not draw millions of points.
+            # print(trace)
+            points = trace.samples
             pen = QtGui.QPen(Qt.red)
             pen.setWidth(2)
             painter.setPen(pen)
@@ -66,8 +68,7 @@ class GraphWidget(MouseSelectableWidget):
         painter.setPen(Qt.lightGray)
 
         # TODO: draw correct stuff
-        x0 = rect.x()
-        y0 = rect.y()
+        x0, y0 = rect.x(), rect.y()
         y2 = rect.y() + rect.height()
         x2 = rect.x() + rect.width()
         spacing = 13
@@ -90,3 +91,22 @@ class GraphWidget(MouseSelectableWidget):
 
         for y in range(y0, y2, spacing * 5):
             painter.drawLine(x0, y, x2, y)
+
+    def draw_legend(self, painter, rect):
+        if self._traces:
+            font_metrics = painter.fontMetrics()
+            width = max(font_metrics.boundingRect(t.name).width() for t in self._traces)
+            height = font_metrics.boundingRect("X").height()
+
+            pen = QtGui.QPen(Qt.black)
+            pen.setWidth(1)
+            painter.setPen(pen)
+            x = 10
+            y = 10
+            legend_rect = QtCore.QRect(x - 4, y - 2, width + 8, height*len(self._traces)+8)
+            painter.fillRect(legend_rect, Qt.white)
+            painter.drawRect(legend_rect)
+            for trace in self._traces:
+                y += height
+                painter.drawText(x, y, trace.name)
+                

@@ -96,6 +96,24 @@ class ZoomAgent(QtCore.QObject):
 
         self.zoom_changed.emit()
 
+    def zoom_around(self, timestamp, amount):
+        current_timespan = self.get_current_timespan()
+        assert timestamp > current_timespan.begin
+        left_duration = timestamp - current_timespan.begin
+        assert current_timespan.end > timestamp
+        right_duration = current_timespan.end - timestamp
+        # print(left_duration, right_duration)
+
+        percentage = (100 + amount) / 100
+        left_duration *= percentage
+        right_duration *= percentage
+
+        timespan = TimeSpan(
+            timestamp - left_duration,
+            timestamp + right_duration
+        )
+        self.zoom_to(timespan)
+
     def set_selection(self, timespan):
         self.selection_changed.emit(timespan)
 

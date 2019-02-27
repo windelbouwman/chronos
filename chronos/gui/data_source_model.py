@@ -12,13 +12,12 @@ Hierarchy is as follows:
 """
 
 from .qt_wrapper import QtCore, Qt
-
+import json
 from ..data import TreeItem, Trace
-from ..data_plugins.demo import DemoDataSource
 
 
 class DataSourceModel(QtCore.QAbstractItemModel):
-    def __init__(self):
+    def __init__(self, database):
         super().__init__()
         self._headers = [
             "Signal",
@@ -26,8 +25,8 @@ class DataSourceModel(QtCore.QAbstractItemModel):
             "Samples",
             "DataSize"
         ]
-        # Add some demo data sources:
-        self.sources = [DemoDataSource(), DemoDataSource()]
+
+        self._database = database
 
     def columnCount(self, parent):
         return len(self._headers)
@@ -45,7 +44,7 @@ class DataSourceModel(QtCore.QAbstractItemModel):
             assert isinstance(tree, TreeItem), str(type(tree))
             return len(tree.children)
         else:
-            return len(self.sources)
+            return len(self._database.sources)
 
     def index(self, row, column, parent):
         if parent.isValid():
@@ -53,7 +52,7 @@ class DataSourceModel(QtCore.QAbstractItemModel):
             assert isinstance(parent_tree, TreeItem)
             tree = parent_tree.children[row]
         else:
-            tree = self.sources[row].data_source
+            tree = self._database.sources[row].data_source
         assert isinstance(tree, TreeItem)
         return self.createIndex(row, column, tree)
 
@@ -66,7 +65,7 @@ class DataSourceModel(QtCore.QAbstractItemModel):
             else:
                 grandparent = parent_tree.parent
                 if grandparent is None:
-                    data_sources = [s.data_source for s in self.sources]
+                    data_sources = [s.data_source for s in self._database.sources]
                     row = data_sources.index(parent_tree)
                     return self.createIndex(row, 0, parent_tree)
                 else:
@@ -107,7 +106,20 @@ class DataSourceModel(QtCore.QAbstractItemModel):
     
     def mimeData(self, indexes):
         mimeData = QtCore.QMimeData()
-        # TODO: encode useful stuff!
-        encodedData = 'woei!'.encode('ascii')
+        uris = []
+        for index in indexes:
+            if not index.isValid():
+                continue
+
+            if index.column() > 0:
+                continue
+
+            tree = index.internalPointer()
+            # if isinstance(tree, TraceDataSource):
+            # tree = tree.source
+            uris.append(tree.get_uri())
+        print(uris)
+        json_data = json.dumps(uris)
+        encodedData = json_data.encode('ascii')
         mimeData.setData('application/x-fubar', encodedData)
         return mimeData

@@ -95,23 +95,11 @@ class MouseSelectableWidget(QtWidgets.QWidget):
 
     def wheelEvent(self, event):
         super().wheelEvent(event)
-        print('wheel!', event.angleDelta())
-        event.accept()
-        timespan = TimeSpan(
-            self.pixel_to_timestamp(0),
-            self.pixel_to_timestamp(self._zoom_agent._width),
-        )
-        duration = timespan.duration()
-        duration = duration / 2
-        center = self.pixel_to_timestamp(event.x())
-        print(center, duration)
-
-
-        # zoom_begin = self.pixel_to_timestamp(x1)
-        # zoom_end = self.pixel_to_timestamp(x2)
-        # zoom_range = TimeSpan(zoom_begin, zoom_end)
-        # self._zoom_agent.zoom_to(zoom_range)
-
+        if event.modifiers() & Qt.ControlModifier:
+            event.accept()
+            x = event.x()
+            ts_center = self.pixel_to_timestamp(x)
+            self._zoom_agent.zoom_around(ts_center, event.angleDelta().y())
 
     def emit_zoom(self, x):
         if x > self._cursor_x2:
