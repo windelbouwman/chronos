@@ -58,3 +58,11 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
         A session file is a xml file of settings for a recording.
         """
         pass
+
+    def closeEvent(self, event):
+        nr = len(self._context.database.sources)
+        progress = QtWidgets.QProgressDialog("Shutting down..", "Cancel", 0, nr, self)
+        progress.show()
+        self._context.database.shutdown()
+        progress.setValue(1)
+        super().closeEvent(event)

@@ -6,6 +6,11 @@ class DataStore:
     def __init__(self):
         self.sources = []
 
+    def shutdown(self):
+        # Signal quit signal:
+        for source in self.sources:
+            source.stop()
+
     def get_data(self):
         return []
 

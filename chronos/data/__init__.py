@@ -15,6 +15,10 @@ from .trace import TreeItem
 from .data_store import DataStore
 
 
+class DataSource:
+    pass
+
+
 class LogRecord:
     def __init__(self, timestamp, level, message):
         self.timestamp = timestamp

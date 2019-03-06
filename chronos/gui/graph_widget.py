@@ -26,6 +26,10 @@ class GraphWidget(MouseSelectableWidget):
         """ Add a trace to this graph. """
         assert isinstance(trace, Trace)
         self._traces.append(trace)
+        trace.data_changed.subscribe(self.on_data_changed)
+        self.update()
+
+    def on_data_changed(self):
         self.update()
 
     def sizeHint(self):
@@ -61,7 +65,22 @@ class GraphWidget(MouseSelectableWidget):
 
     def draw_value_axis(self, painter, rect):
         # TODO: draw y-axis here..
-        pass
+        x0, y0 = rect.x(), rect.y()
+        y2 = rect.y() + rect.height()
+        x2 = rect.x() + rect.width()
+        spacing = 13
+
+        pen = QtGui.QPen(Qt.black)
+        pen.setWidth(2)
+        painter.setPen(pen)
+
+        #for x in range(x0, x2, spacing):
+        #    painter.drawLine(x, y0, x, y2)
+
+        for y in range(y0, y2, spacing * 5):
+            painter.drawLine(x0 + 10, y, x0 + 20, y)
+            painter.drawText(x0, y, str(y))
+
 
     def draw_grid(self, painter, rect):
         # First draw a lightgray grid

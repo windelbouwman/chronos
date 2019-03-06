@@ -53,6 +53,22 @@ class TraceGroup(TreeItem):
         return 'tracegroup://{}'.format(id(self))
 
 
+class Event:
+    """ Simple event type which supports multiple handlers. """
+    def __init__(self):
+        self._subscribers = []
+    
+    def __call__(self):
+        for s in self._subscribers:
+            s()
+    
+    def subscribe(self, handler):
+        self._subscribers.append(handler)
+    
+    def unsubscribe(self, handler):
+        self._subscribers.remove(handler)
+
+
 class Trace(TreeItem):
     """ A single trace source. """
 
@@ -61,16 +77,23 @@ class Trace(TreeItem):
         self.name = name
         self._type = "value"  # or log message / function call enter?
         self.samples = []
+        self.data_changed = Event()
     
     @property
     def size(self):
         return len(self.samples) * 8 + 13
+
+    @property
+    def has_samples(self):
+        return len(self.samples) > 0
 
     def add(self, sample):
         if isinstance(sample, list):
             self.samples.extend(sample)
         else:
             self.samples.append(sample)
+
+        self.data_changed()
 
     def get_uri(self):
         return 'trace://{}'.format(id(self))

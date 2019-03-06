@@ -23,7 +23,7 @@ class DataSourceModel(QtCore.QAbstractItemModel):
             "Signal",
             "Last value",
             "Samples",
-            "DataSize"
+            # "DataSize"
         ]
 
         self._database = database
@@ -85,12 +85,15 @@ class DataSourceModel(QtCore.QAbstractItemModel):
             if column == 0:
                 value = tree_item.name
             elif column == 1:  # last value.
-                value = '--'
+                if isinstance(tree_item, Trace) and tree_item.has_samples:
+                    value = str(tree_item.samples[-1][1])
+                else:
+                    value = ''
             elif column == 2:  # num samples
                 if isinstance(tree_item, Trace):
                     value = str(len(tree_item.samples))
                 else:
-                    value = '--'
+                    value = ''
             else:  # datasize
                 value = str(tree_item.size)
             return value
