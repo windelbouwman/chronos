@@ -37,7 +37,9 @@ class MouseSelectableWidget(QtWidgets.QWidget):
     def pixels_to_duration(self, pixels):
         return self._zoom_agent.pixels_to_duration(pixels)
 
-    def calc_tick(self):
+    def calc_ticks(self):
+        """ Calculate major ticks.
+        """
         timespan = TimeSpan(
             self.pixel_to_timestamp(0),
             self.pixel_to_timestamp(self._zoom_agent._width),

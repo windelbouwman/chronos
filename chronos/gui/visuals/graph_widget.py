@@ -36,6 +36,9 @@ class GraphWidget(MouseSelectableWidget):
     def sizeHint(self):
         return QtCore.QSize(40, 300)
 
+    def value_to_pixel(self, value):
+        return value
+
     def paintEvent(self, event):
         super().paintEvent(event)
         painter = QtGui.QPainter(self)
@@ -46,6 +49,7 @@ class GraphWidget(MouseSelectableWidget):
         self.draw_value_axis(painter, event.rect())
         self.draw_signals(painter, event.rect())
         self.draw_cursor(painter, event.rect())
+        self.draw_current_value(painter)
         self.draw_legend(painter, event.rect())
 
     def draw_signals(self, painter, rect):
@@ -61,56 +65,73 @@ class GraphWidget(MouseSelectableWidget):
 
             for p1, p2 in zip(points[:-1], points[1:]):
                 x1 = self.timestamp_to_pixel(p1[0])
+                y1 = self.value_to_pixel(p1[1])
                 x2 = self.timestamp_to_pixel(p2[0])
-                painter.drawLine(x1, p1[1], x2, p2[1])
+                y2 = self.value_to_pixel(p2[1])
+                painter.drawLine(x1, y1, x2, y2)
+
+    def get_y_ticks(self):
+        ticks = []
+        y_max = self.height()
+        spacing = 35
+        for y in range(0, y_max, spacing):
+            ticks.append(y)
+        return ticks
 
     def draw_value_axis(self, painter, rect):
         # TODO: draw y-axis here..
-        x0, y0 = rect.x(), rect.y()
-        y2 = rect.y() + rect.height()
-        x2 = rect.x() + rect.width()
-        spacing = 13
 
         pen = QtGui.QPen(Qt.black)
         pen.setWidth(2)
         painter.setPen(pen)
 
-        #for x in range(x0, x2, spacing):
-        #    painter.drawLine(x, y0, x, y2)
+        ticks = self.get_y_ticks()
 
-        for y in range(y0, y2, spacing * 5):
+        x0 = 0
+        for y in ticks:
             painter.drawLine(x0 + 10, y, x0 + 20, y)
             painter.drawText(x0, y, str(y))
 
 
     def draw_grid(self, painter, rect):
+        """ Draw gridlines. """
+        # TODO: fixed grid, variable legend on the ticks.
+
         # First draw a lightgray grid
         painter.setPen(Qt.lightGray)
 
-        # TODO: draw correct stuff
         x0, y0 = rect.x(), rect.y()
         y2 = rect.y() + rect.height()
         x2 = rect.x() + rect.width()
-        spacing = 13
 
-        #for x in range(x0, x2, spacing):
-        #    painter.drawLine(x, y0, x, y2)
-
-        for y in range(y0, y2, spacing):
+        y_ticks = self.get_y_ticks()
+        for y in y_ticks:
             painter.drawLine(x0, y, x2, y)
 
         # Now drow major ticks:
         pen = QtGui.QPen(Qt.black)
         pen.setWidth(2)
         painter.setPen(pen)
-        major_ticks = self.calc_tick()
+        major_ticks = self.calc_ticks()
         # for x in range(x0, x2, spacing * 5):
         for tick in major_ticks:
             x = self.timestamp_to_pixel(tick)
             painter.drawLine(x, y0, x, y2)
 
-        for y in range(y0, y2, spacing * 5):
-            painter.drawLine(x0, y, x2, y)
+        # for y in range(y0, y2, spacing * 5):
+        #     painter.drawLine(x0, y, x2, y)
+
+    def draw_current_value(self, painter):
+        if self._cursor is not None:
+            painter.setPen(Qt.black)
+            x = self.timestamp_to_pixel(self._cursor) + 4
+            y = 25
+
+            for trace in self._traces:
+                cursor_value = 12
+                text = '{}={}'.format(trace.name, cursor_value)
+                painter.drawText(x, y, text)
+                y += 15
 
     def draw_legend(self, painter, rect):
         if self._traces:

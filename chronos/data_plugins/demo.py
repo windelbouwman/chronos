@@ -40,6 +40,9 @@ class DemoDataSource(DataSource):
         self._trace3.add(points3)
         self.data_source.add_item(self._trace3)
 
+        # self._log_trace = LogTrace('logs')
+        # self.data_source.add_item(self._log_trace)
+
         self.start()
 
     @property

@@ -12,12 +12,14 @@ class Fubar(QtWidgets.QWidget):
         self._traces = []
 
         l = QtWidgets.QVBoxLayout()
+        self.setLayout(l)
+
         l2 = QtWidgets.QHBoxLayout()
         l.addLayout(l2)
-        l2.addSpacing(40)
+        l2.addSpacing(100)
         self._axis_top = TimeAxisWidget(self._zoom_agent)
         l2.addWidget(self._axis_top)
-        self.setLayout(l)
+        l2.addSpacing(40)
 
         # Scroll area:
         self._scroll = QtWidgets.QScrollArea()
@@ -79,6 +81,5 @@ class Fubar(QtWidgets.QWidget):
         super().resizeEvent(event)
 
         # When resizing, ensure proper width of content view.
-        width = event.size().width() - 50
-        self._zoom_agent._width = width
+        width = self._scroll.width() - 22
         self._inner.setFixedWidth(width)

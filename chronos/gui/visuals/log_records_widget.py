@@ -20,15 +20,27 @@ class LogRecordsWidget(MouseSelectableWidget):
             QtWidgets.QSizePolicy.MinimumExpanding,
         )
         self.setSizePolicy(policy)
-        self.setMinimumHeight(80)
+        self.setMinimumHeight(120)
 
     def paintEvent(self, event):
         super().paintEvent(event)
         painter = QtGui.QPainter(self)
         painter.fillRect(event.rect(), Qt.white)
         # Paint the several thingies:
+        self.draw_grid(painter, event.rect())
         self.draw_logs(painter, event.rect())
         self.draw_cursor(painter, event.rect())
+
+    def draw_grid(self, painter, rect):
+        painter.setPen(Qt.black)
+        ticks = self.calc_ticks()
+        x0, y0 = rect.x(), rect.y()
+        y2 = rect.y() + rect.height()
+        x2 = rect.x() + rect.width()
+
+        for tick in ticks:
+            x = self.timestamp_to_pixel(tick)
+            painter.drawLine(x, y0, x, y2)
 
     def draw_logs(self, painter, rect):
         """ Draw log records in w00t-style cool way. """

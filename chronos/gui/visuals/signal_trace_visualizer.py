@@ -16,18 +16,21 @@ class SignalTraceVisualizer(TraceVisualizer):
         l = QtWidgets.QHBoxLayout()
         self.setLayout(l)
         # Some controls:
-        self._label = QtWidgets.QPushButton("FubarPlot12345")
-        # self._label.setText()
+        # self._label = QtWidgets.QPushButton("FubarPlot12345")
+        self._label = QtWidgets.QLabel()
+        self._label.setText("Fubarplot12345")
+        self._label.setFixedWidth(70)
         l.addWidget(self._label)
 
-        self._frame = QtWidgets.QFrame()
-        self._frame.setLineWidth(2)
-        self._frame.setFrameStyle(QtWidgets.QFrame.Sunken | QtWidgets.QFrame.Panel)
-        l.addWidget(self._frame)
-        l2 = QtWidgets.QVBoxLayout()
-        self._frame.setLayout(l2)
+        # self._frame = QtWidgets.QFrame()
+        # self._frame.setLineWidth(2)
+        # self._frame.setFrameStyle(QtWidgets.QFrame.Sunken | QtWidgets.QFrame.Panel)
+        # l.addWidget(self._frame)
+        # l2 = QtWidgets.QVBoxLayout()
+        # self._frame.setLayout(l2)
         self._graph = GraphWidget(zoom_agent)
-        l2.addWidget(self._graph)
+        l.addWidget(self._graph)
+
         self.setAcceptDrops(True)
     
     def dragEnterEvent(self, event):

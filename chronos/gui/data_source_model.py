@@ -23,7 +23,7 @@ class DataSourceModel(QtCore.QAbstractItemModel):
             "Signal",
             "Last value",
             "Samples",
-            # "DataSize"
+            "Type"
         ]
 
         self._database = database
@@ -94,8 +94,8 @@ class DataSourceModel(QtCore.QAbstractItemModel):
                     value = str(len(tree_item.samples))
                 else:
                     value = ''
-            else:  # datasize
-                value = str(tree_item.size)
+            else:  # type
+                value = str(tree_item.__class__)
             return value
 
     def flags(self, index):

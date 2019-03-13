@@ -99,15 +99,24 @@ class Trace(TreeItem):
         return 'trace://{}'.format(id(self))
 
 
-def EventTrace(Trace):
+class EventTrace(Trace):
     """ A trace with events. """
     pass
 
 
-def SignalTrace(Trace):
+class FunctionCallTrace(Trace):
+    pass
+
+
+class SignalTrace(Trace):
     """ A signal trace of scalar values over time. """
     pass
 
 
-def VideoTrace(Trace):
+class VideoTrace(Trace):
+    pass
+
+
+class AudioTrace(Trace):
+    """ An audio recording. """
     pass

@@ -14,6 +14,7 @@ class LogTraceVisualizer(TraceVisualizer):
         self.setLayout(l)
         self._label = QtWidgets.QLabel()
         self._label.setText("Log x")
+        self._label.setFixedWidth(70)
         l.addWidget(self._label)
 
         self._graph = LogRecordsWidget(zoom_agent)
