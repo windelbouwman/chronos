@@ -3,9 +3,9 @@
 """
 
 import math
-from .qt_wrapper import QtWidgets, QtGui, Qt, QtCore
+from ..qt_wrapper import QtWidgets, QtGui, Qt, QtCore
 from .mouse_select_widget import MouseSelectableWidget
-from ..data import TimeStamp, Trace
+from ...data import TimeStamp, Trace
 
 
 class GraphWidget(MouseSelectableWidget):
@@ -21,6 +21,7 @@ class GraphWidget(MouseSelectableWidget):
             QtWidgets.QSizePolicy.MinimumExpanding,
         )
         self.setSizePolicy(policy)
+        self.setMinimumHeight(300)
 
     def add_trace(self, trace):
         """ Add a trace to this graph. """

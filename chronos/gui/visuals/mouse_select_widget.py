@@ -1,6 +1,6 @@
 import math
-from .qt_wrapper import QtWidgets, QtGui, QtCore, Qt
-from ..data import TimeSpan, Duration
+from ..qt_wrapper import QtWidgets, QtGui, QtCore, Qt
+from ...data import TimeSpan, Duration
 
 
 class MouseSelectableWidget(QtWidgets.QWidget):

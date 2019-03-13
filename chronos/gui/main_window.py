@@ -1,5 +1,5 @@
 from PyQt5 import uic
-from .qt_wrapper import QtWidgets, Qt
+from .qt_wrapper import QtWidgets, Qt, QtCore
 
 # from .graph_widget import GraphWidget
 from .fubar import Fubar
@@ -52,6 +52,13 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
 
         self.actionSaveSession.triggered.connect(self._save_session)
 
+        # Restore position:
+        settings = QtCore.QSettings("lcfos", "chronos")
+        settings.beginGroup("MainWindow")
+        self.resize(settings.value("size", QtCore.QSize(400, 300)))
+        self.move(settings.value("pos", QtCore.QPoint(50, 50)))
+        settings.endGroup()
+
     def _save_session(self):
         """ Save current datasources and views into a session.
 
@@ -60,6 +67,12 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
         pass
 
     def closeEvent(self, event):
+        settings = QtCore.QSettings("lcfos", "chronos")
+        settings.beginGroup("MainWindow")
+        settings.setValue("size", self.size())
+        settings.setValue("pos", self.pos())
+        settings.endGroup()
+
         nr = len(self._context.database.sources)
         progress = QtWidgets.QProgressDialog("Shutting down..", "Cancel", 0, nr, self)
         progress.show()

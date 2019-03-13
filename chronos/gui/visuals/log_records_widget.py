@@ -1,6 +1,6 @@
-from .qt_wrapper import QtGui, Qt, QtWidgets
+from ..qt_wrapper import QtGui, Qt, QtWidgets
 from .mouse_select_widget import MouseSelectableWidget
-from ..data import LogRecord, TimeStamp
+from ...data import LogRecord, TimeStamp
 
 
 class LogRecordsWidget(MouseSelectableWidget):
@@ -20,6 +20,7 @@ class LogRecordsWidget(MouseSelectableWidget):
             QtWidgets.QSizePolicy.MinimumExpanding,
         )
         self.setSizePolicy(policy)
+        self.setMinimumHeight(80)
 
     def paintEvent(self, event):
         super().paintEvent(event)

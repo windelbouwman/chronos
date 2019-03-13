@@ -1,4 +1,4 @@
-from .qt_wrapper import QtWidgets, QtGui, QtCore, Qt
+from ..qt_wrapper import QtWidgets, QtGui, QtCore, Qt
 
 
 class TraceVisualizer(QtWidgets.QFrame):

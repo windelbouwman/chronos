@@ -1,17 +1,13 @@
 
 import json
 from urllib.parse import urlparse
-from .qt_wrapper import QtWidgets, QtGui, QtCore, Qt
-from ..data import TimeSpan
-from .mouse_select_widget import MouseSelectableWidget
+from ..qt_wrapper import QtWidgets, QtGui, Qt
 from .graph_widget import GraphWidget
-from .log_records_widget import LogRecordsWidget
-from .time_axis_widget import TimeAxisWidget
 from .trace_visualizer import TraceVisualizer
 
 
 class SignalTraceVisualizer(TraceVisualizer):
-    """ Visualizer for one or more signals.
+    """ Visualizer for one or more signals in a plot.
     """
 
     def __init__(self, zoom_agent, database):
@@ -20,8 +16,8 @@ class SignalTraceVisualizer(TraceVisualizer):
         l = QtWidgets.QHBoxLayout()
         self.setLayout(l)
         # Some controls:
-        self._label = QtWidgets.QLabel()
-        self._label.setText("FubarPlot12345")
+        self._label = QtWidgets.QPushButton("FubarPlot12345")
+        # self._label.setText()
         l.addWidget(self._label)
 
         self._frame = QtWidgets.QFrame()
@@ -32,7 +28,6 @@ class SignalTraceVisualizer(TraceVisualizer):
         self._frame.setLayout(l2)
         self._graph = GraphWidget(zoom_agent)
         l2.addWidget(self._graph)
-
         self.setAcceptDrops(True)
     
     def dragEnterEvent(self, event):

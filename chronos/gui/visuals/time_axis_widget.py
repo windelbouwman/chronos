@@ -1,6 +1,6 @@
-from .qt_wrapper import QtWidgets, QtGui, QtCore, Qt
+from ..qt_wrapper import QtWidgets, QtGui, QtCore, Qt
 from .mouse_select_widget import MouseSelectableWidget
-from ..data import Duration, TimeSpan
+from ...data import Duration, TimeSpan
 
 
 class TimeAxisWidget(MouseSelectableWidget):

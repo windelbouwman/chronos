@@ -2,16 +2,20 @@ from .qt_wrapper import QtWidgets, Qt
 from .data_source_model import DataSourceModel
 from ..data import Trace
 from ..data_plugins.demo import DemoDataSource
+from ..data_plugins.linux_monitor import LinuxDataSource
 
 
 class SignalSourceWidget(QtWidgets.QWidget):
+    """ A widget with data sources. """
     def __init__(self, database):
         super().__init__()
         self._database = database
         l = QtWidgets.QVBoxLayout()
         self.setLayout(l)
 
-        add_data_source = QtWidgets.QPushButton('Add data source')
+        add_data_source = QtWidgets.QToolButton()
+        add_data_source.setText('Add data source...')
+        add_data_source.setPopupMode(QtWidgets.QToolButton.InstantPopup)
         l.addWidget(add_data_source)
         
         expand_all_button = QtWidgets.QPushButton('Expand all')
@@ -29,13 +33,23 @@ class SignalSourceWidget(QtWidgets.QWidget):
 
         expand_all_button.clicked.connect(self.signalsTreeView.expandAll)
         # What must happen when data source is added:
-        add_data_source.clicked.connect(self._add_data_source)
+        # add_data_source.clicked.connect(self._add_data_source)
 
-    def _add_data_source(self):
-        print("add data")
-        # TODO: show wizard to select proper plugin.
-        self.signal_model._database.sources.append(DemoDataSource())
-        self.signal_model.modelReset.emit()
+        menu = QtWidgets.QMenu()
+        source_types = [
+            ("Demo", DemoDataSource),
+            ("Linux", LinuxDataSource)
+        ]
+        for name, cls in source_types:
+            self.create_add_source_menu(menu, name, cls)
+        add_data_source.setMenu(menu)
+
+    def create_add_source_menu(self, menu, name, cls):
+        def handle():
+            self.signal_model._database.sources.append(cls())
+            self.signal_model.modelReset.emit()
+        action = menu.addAction(name)
+        action.triggered.connect(handle)
 
     def _on_context_menu(self, pos):
         # print(pos)
