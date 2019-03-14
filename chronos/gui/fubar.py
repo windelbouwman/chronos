@@ -58,6 +58,8 @@ class Fubar(QtWidgets.QWidget):
 
         self.fill_demo_data()
 
+        self.setToolTip("Add visualizers first, then drag in signals into the plots from the left.")
+
     def add_trace(self, trace):
         self._trace_layout.addWidget(trace)
         self._traces.append(trace)

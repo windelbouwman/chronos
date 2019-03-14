@@ -1,3 +1,4 @@
+import time
 from .duration import Duration
 
 
@@ -7,7 +8,7 @@ class TimeStamp:
 
     @classmethod
     def now(cls):
-        stamp = 1
+        stamp = time.time()
         return cls(stamp)
 
     def copy(self):

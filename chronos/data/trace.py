@@ -71,7 +71,6 @@ class Event:
 
 class Trace(TreeItem):
     """ A single trace source. """
-
     def __init__(self, name):
         super().__init__()
         self.name = name
@@ -95,22 +94,23 @@ class Trace(TreeItem):
 
         self.data_changed()
 
+
+class SignalTrace(Trace):
+    """ A signal trace of scalar values over time. """
     def get_uri(self):
-        return 'trace://{}'.format(id(self))
+        return 'signaltrace://{}'.format(id(self))
 
 
-class EventTrace(Trace):
-    """ A trace with events. """
-    pass
+class LogTrace(Trace):
+    """ A trace with log events. """
+    def get_uri(self):
+        return 'logtrace://{}'.format(id(self))
 
 
 class FunctionCallTrace(Trace):
     pass
 
 
-class SignalTrace(Trace):
-    """ A signal trace of scalar values over time. """
-    pass
 
 
 class VideoTrace(Trace):

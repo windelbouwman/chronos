@@ -9,7 +9,8 @@ class LogTraceVisualizer(TraceVisualizer):
     """
 
     def __init__(self, zoom_agent, database):
-        super().__init__()
+        super().__init__('logtrace')
+        self._database = database
         l = QtWidgets.QHBoxLayout()
         self.setLayout(l)
         self._label = QtWidgets.QLabel()
@@ -17,7 +18,11 @@ class LogTraceVisualizer(TraceVisualizer):
         self._label.setFixedWidth(70)
         l.addWidget(self._label)
 
-        self._graph = LogRecordsWidget(zoom_agent)
-        l.addWidget(self._graph)
-        # self.setMinimumHeight(100)
-        # self.setMinimumWidth(100)
+        self._logs = LogRecordsWidget(zoom_agent)
+        l.addWidget(self._logs)
+    
+    def handle_drop(self, o):
+        trace_id = int(o.netloc)
+        trace = self._database.get_trace(trace_id)
+        self._logs.add_trace(trace)
+

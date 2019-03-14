@@ -15,13 +15,43 @@ class GraphWidget(MouseSelectableWidget):
     def __init__(self, zoom_agent):
         super().__init__(zoom_agent)
         self._traces = []
+        self._zoom_levels = [
+            1,
+            5,
+            10,
+            50,
+            100,
+            500,
+            1000,
+            5000
+        ]
+        self._current_zoom_level = 3
+        self._unit_per_div = self._zoom_levels[self._current_zoom_level]
+        self._div_size = 30  # Pixels per division, horizontal as well as vertical.
+        self._num_vertical_divs = 10  # take 10 divs, like on oscilloscope.
 
         policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.MinimumExpanding,
             QtWidgets.QSizePolicy.MinimumExpanding,
         )
         self.setSizePolicy(policy)
-        self.setMinimumHeight(300)
+        self.setFixedHeight(self._div_size * self._num_vertical_divs)
+
+    def zoom_in(self):
+        self.set_zoom_level(self._current_zoom_level - 1)
+    
+    def zoom_out(self):
+        self.set_zoom_level(self._current_zoom_level + 1)
+    
+    def set_zoom_level(self, level):
+        if level < 0:
+            level = 0
+        elif level >= len(self._zoom_levels):
+            level = len(self._zoom_levels) - 1
+        
+        self._current_zoom_level = level
+        self._unit_per_div = self._zoom_levels[self._current_zoom_level]
+        self.update()
 
     def add_trace(self, trace):
         """ Add a trace to this graph. """
@@ -33,16 +63,23 @@ class GraphWidget(MouseSelectableWidget):
     def on_data_changed(self):
         self.update()
 
-    def sizeHint(self):
-        return QtCore.QSize(40, 300)
-
     def value_to_pixel(self, value):
-        return value
+        zero_pixel = self._div_size * (self._num_vertical_divs // 2)
+        pixel_per_value = -self._div_size / self._unit_per_div
+        pixel = zero_pixel + pixel_per_value * value
+        return pixel
 
     def paintEvent(self, event):
         super().paintEvent(event)
         painter = QtGui.QPainter(self)
         painter.fillRect(event.rect(), Qt.white)
+
+        # Draw square
+        painter.setPen(Qt.black)
+        painter.drawLine(0, 0, self.width() - 1, 0)
+        painter.drawLine(0, self.height() - 1, self.width() - 1, self.height() - 1)
+        painter.drawLine(0, 0, 0, self.height() - 1)
+        painter.drawLine(self.width() - 1, 0, self.width() - 1, self.height() - 1)
 
         # Paint the several thingies:
         self.draw_grid(painter, event.rect())
@@ -71,26 +108,28 @@ class GraphWidget(MouseSelectableWidget):
                 painter.drawLine(x1, y1, x2, y2)
 
     def get_y_ticks(self):
+        """ Get a series of y,value pairs. """
         ticks = []
-        y_max = self.height()
-        spacing = 35
-        for y in range(0, y_max, spacing):
-            ticks.append(y)
+        for i in range(self._num_vertical_divs + 1):
+            y = i * self._div_size
+            value = ((self._num_vertical_divs // 2) - i) * self._unit_per_div
+            ticks.append((y, value))
         return ticks
 
     def draw_value_axis(self, painter, rect):
-        # TODO: draw y-axis here..
-
         pen = QtGui.QPen(Qt.black)
         pen.setWidth(2)
         painter.setPen(pen)
 
+        font_metrics = painter.fontMetrics()
         ticks = self.get_y_ticks()
 
         x0 = 0
-        for y in ticks:
-            painter.drawLine(x0 + 10, y, x0 + 20, y)
-            painter.drawText(x0, y, str(y))
+        for y, value in ticks:
+            painter.drawLine(x0, y, x0 + 15, y)
+            text = str(value)
+            text_height = font_metrics.boundingRect(text).height()
+            painter.drawText(x0 + 20, y + (text_height / 2), text)
 
 
     def draw_grid(self, painter, rect):
@@ -105,7 +144,7 @@ class GraphWidget(MouseSelectableWidget):
         x2 = rect.x() + rect.width()
 
         y_ticks = self.get_y_ticks()
-        for y in y_ticks:
+        for y, _ in y_ticks:
             painter.drawLine(x0, y, x2, y)
 
         # Now drow major ticks:

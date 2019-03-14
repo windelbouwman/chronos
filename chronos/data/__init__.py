@@ -10,7 +10,7 @@ from .duration import Duration
 from .timespan import TimeSpan
 from .timestamp import TimeStamp
 from .trace import TraceDataSource, TraceGroup
-from .trace import Trace, SignalTrace
+from .trace import Trace, SignalTrace, LogTrace
 from .trace import TreeItem
 from .data_store import DataStore
 

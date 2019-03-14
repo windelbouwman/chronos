@@ -6,21 +6,22 @@ from ...data import LogRecord, TimeStamp
 class LogRecordsWidget(MouseSelectableWidget):
     def __init__(self, zoom_agent):
         super().__init__(zoom_agent)
-        self._logs = [
-            LogRecord(TimeStamp(10), 1, "Event 1"),
-            LogRecord(TimeStamp(70), 3, "Event 2"),
-            LogRecord(TimeStamp(200), 1, "Event 3"),
-            LogRecord(TimeStamp(204), 1, "Event 4"),
-            LogRecord(TimeStamp(400), 1, "Event 5"),
-            LogRecord(TimeStamp(600), 1, "FUU"),
-        ]
+        self._traces = []
 
         policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.MinimumExpanding,
             QtWidgets.QSizePolicy.MinimumExpanding,
         )
         self.setSizePolicy(policy)
-        self.setMinimumHeight(120)
+        self.setFixedHeight(120)
+
+    def add_trace(self, trace):
+        self._traces.append(trace)
+        trace.data_changed.subscribe(self.on_data_changed)
+        self.update()
+
+    def on_data_changed(self):
+        self.update()
 
     def paintEvent(self, event):
         super().paintEvent(event)
@@ -34,9 +35,8 @@ class LogRecordsWidget(MouseSelectableWidget):
     def draw_grid(self, painter, rect):
         painter.setPen(Qt.black)
         ticks = self.calc_ticks()
-        x0, y0 = rect.x(), rect.y()
-        y2 = rect.y() + rect.height()
-        x2 = rect.x() + rect.width()
+        y0 = 0
+        y2 = self.height()
 
         for tick in ticks:
             x = self.timestamp_to_pixel(tick)
@@ -44,24 +44,27 @@ class LogRecordsWidget(MouseSelectableWidget):
 
     def draw_logs(self, painter, rect):
         """ Draw log records in w00t-style cool way. """
-        num_lanes = 5  # Try to print non-overlapping log messages.
+        _num_lanes = 5  # Try to print non-overlapping log messages.
+        for trace in self._traces:
+            for _, record in trace.samples:
+                self.draw_record(painter, record)
+
+    def draw_record(self, painter, record):
         font_metrics = painter.fontMetrics()
-        for record in self._logs:
-            x = self.timestamp_to_pixel(record.timestamp)
+        x = self.timestamp_to_pixel(record.timestamp)
 
-            painter.setPen(Qt.red)
+        # Draw marker:
+        radius = 5
+        painter.setPen(Qt.red)
+        painter.drawEllipse(x - radius / 2, 10 - radius / 2, radius, radius)
 
-            # Draw marker:
-            radius = 5
-            painter.drawEllipse(x - radius / 2, 10 - radius / 2, radius, radius)
+        painter.setPen(Qt.green)
+        painter.drawLine(x, 10, x + 5, 30)
 
-            painter.setPen(Qt.green)
-            painter.drawLine(x, 10, x + 5, 30)
-
-            # TODO: properly draw balloons in lanes.
-            # Draw text baloon:
-            text_rect = font_metrics.boundingRect(record.message)
-            text_rect.adjust(-4, -2, 4, 2)
-            text_rect.translate(x + 5, 30)
-            painter.drawRoundedRect(text_rect, 4, 4)
-            painter.drawText(x + 5, 30, record.message)
+        # TODO: properly draw balloons in lanes.
+        # Draw text baloon:
+        text_rect = font_metrics.boundingRect(record.message)
+        text_rect.adjust(-4, -2, 4, 2)
+        text_rect.translate(x + 5, 30)
+        painter.drawRoundedRect(text_rect, 4, 4)
+        painter.drawText(x + 5, 30, record.message)

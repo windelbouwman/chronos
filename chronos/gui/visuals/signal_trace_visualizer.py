@@ -1,6 +1,4 @@
 
-import json
-from urllib.parse import urlparse
 from ..qt_wrapper import QtWidgets, QtGui, Qt
 from .graph_widget import GraphWidget
 from .trace_visualizer import TraceVisualizer
@@ -11,7 +9,7 @@ class SignalTraceVisualizer(TraceVisualizer):
     """
 
     def __init__(self, zoom_agent, database):
-        super().__init__()
+        super().__init__("signaltrace")
         self._database = database
         l = QtWidgets.QHBoxLayout()
         self.setLayout(l)
@@ -20,7 +18,13 @@ class SignalTraceVisualizer(TraceVisualizer):
         self._label = QtWidgets.QLabel()
         self._label.setText("Fubarplot12345")
         self._label.setFixedWidth(70)
-        l.addWidget(self._label)
+        l2 = QtWidgets.QVBoxLayout()
+        l2.addWidget(self._label)
+        self._zoom_in = QtWidgets.QPushButton('+')
+        self._zoom_out = QtWidgets.QPushButton('-')
+        l2.addWidget(self._zoom_in)
+        l2.addWidget(self._zoom_out)
+        l.addLayout(l2)
 
         # self._frame = QtWidgets.QFrame()
         # self._frame.setLineWidth(2)
@@ -31,25 +35,10 @@ class SignalTraceVisualizer(TraceVisualizer):
         self._graph = GraphWidget(zoom_agent)
         l.addWidget(self._graph)
 
-        self.setAcceptDrops(True)
+        self._zoom_in.clicked.connect(self._graph.zoom_in)
+        self._zoom_out.clicked.connect(self._graph.zoom_out)
     
-    def dragEnterEvent(self, event):
-        mimeData = event.mimeData()
-        if mimeData.hasFormat('application/x-fubar'):
-            event.accept()
-
-    def dropEvent(self, event):
-        mimeData = event.mimeData()
-        if mimeData.hasFormat('application/x-fubar'):
-            data = mimeData.data('application/x-fubar').data()
-            uris = json.loads(data.decode('ascii'))
-            for uri in uris:
-                print('Dropping', uri)
-                o = urlparse(uri)
-                # print(o)
-                if o.scheme == 'trace':
-                    trace_id = int(o.netloc)
-                    trace = self._database.get_trace(trace_id)
-                    self._graph.add_trace(trace)
-                else:
-                    print(f'Not supported scheme: {o.scheme}')
+    def handle_drop(self, o):
+        trace_id = int(o.netloc)
+        trace = self._database.get_trace(trace_id)
+        self._graph.add_trace(trace)

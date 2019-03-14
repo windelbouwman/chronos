@@ -1,8 +1,9 @@
 from .qt_wrapper import QtWidgets, Qt
 from .data_source_model import DataSourceModel
 from ..data import Trace
-from ..data_plugins.demo import DemoDataSource
-from ..data_plugins.linux_monitor import LinuxDataSource
+from ..data_plugins import DemoDataSource
+from ..data_plugins import LinuxDataSource
+from ..data_plugins import PyLoggerSource
 
 
 class SignalSourceWidget(QtWidgets.QWidget):
@@ -38,7 +39,8 @@ class SignalSourceWidget(QtWidgets.QWidget):
         menu = QtWidgets.QMenu()
         source_types = [
             ("Demo", DemoDataSource),
-            ("Linux", LinuxDataSource)
+            ("Linux", LinuxDataSource),
+            ("Python logger", PyLoggerSource),
         ]
         for name, cls in source_types:
             self.create_add_source_menu(menu, name, cls)

@@ -4,7 +4,7 @@
 import math
 import threading
 import time
-from ..data import Trace, TraceDataSource, TimeStamp, TraceGroup
+from ..data import SignalTrace, LogTrace, LogRecord, TraceDataSource, TimeStamp, TraceGroup
 from ..data import DataSource
 
 
@@ -25,23 +25,26 @@ class DemoDataSource(DataSource):
         group1 = TraceGroup('group1')
         self.data_source.add_item(group1)
 
-        self._trace1 = Trace('trace1')
-        points1 = [(TimeStamp(x), math.sin(x * 0.2) * 80 + 40) for x in xs]
+        self._trace1 = SignalTrace('trace1')
+        points1 = [(TimeStamp(x), math.sin(x * 0.03) * 80 + 40) for x in xs]
         self._trace1.add(points1)
         group1.add_item(self._trace1)
 
-        trace2 = Trace('trace2')
+        trace2 = SignalTrace('trace2')
         points2 = [(TimeStamp(x), math.sin(x * 0.6) * 30 + 20) for x in xs]
         trace2.add(points2)
         group1.add_item(trace2)
 
-        self._trace3 = Trace('trace3')
+        self._trace3 = SignalTrace('sine3')
         points3 = [(TimeStamp(x), math.cos(x * 0.6) * 20 + 70) for x in xs]
         self._trace3.add(points3)
         self.data_source.add_item(self._trace3)
 
-        # self._log_trace = LogTrace('logs')
-        # self.data_source.add_item(self._log_trace)
+        self._trace4 = SignalTrace('ramp1')
+        self.data_source.add_item(self._trace4)
+
+        self._log_trace = LogTrace('logs')
+        self.data_source.add_item(self._log_trace)
 
         self.start()
 
@@ -65,6 +68,11 @@ class DemoDataSource(DataSource):
             self._trace1.add(point)
             point = (ts, math.cos(self._x * 0.6) * 20 + 70)
             self._trace3.add(point)
+            point = (ts, self._x % 50)
+            self._trace4.add(point)
+            if self._x % 37 == 0:
+                sample = (ts, LogRecord(ts, 0, 'x divisable by 37!!'))
+                self._log_trace.add(sample)
 
     def stop(self):
         self._running = False
