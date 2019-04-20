@@ -19,10 +19,19 @@ class DataSource:
     pass
 
 
-class LogRecord:
-    def __init__(self, timestamp, level, message):
+class Record:
+    def __init__(self, timestamp):
         self.timestamp = timestamp
+
+
+class LogRecord(Record):
+    def __init__(self, timestamp, level, message):
+        super().__init__(timestamp)
         self.level = level
         self.message = message
 
 
+class SignalRecord(Record):
+    def __init__(self, timestamp, value):
+        super().__init__(timestamp)
+        self.value = value

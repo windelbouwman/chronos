@@ -4,57 +4,94 @@ Implement a convenient time period selection box.
 """
 
 import math
+import logging
 from .qt_wrapper import QtWidgets, QtCore
 
 from ..data import TimeSpan, TimeStamp, Duration
 
+logger = logging.getLogger('timespan_selection')
+
 
 RANGES = [
-    "last 30 minutes",
-    "last 15 minutes",
-    "past hour",
-    "last 30 nanoseconds",
-    "last week",
-    "last month",
-    "last year",
+    # last 30 nanoseconds
+    ("last 30 seconds", Duration.from_seconds(30)),
+    ("last minute", Duration.from_minutes(1)),
+    ("last 15 minutes", Duration.from_minutes(15)),
+    ("last 30 minutes", Duration.from_minutes(30)),
+    ("last hour", Duration.from_minutes(60)),
+    # "last week",
+    # "last month",
+    # "last year",
 ]
 
+
+class TimeSpanToolButton(QtWidgets.QToolButton):
+    def __init__(self, zoom_agent):
+        super().__init__()
+        self._zoom_agent = zoom_agent
+        dialog = False
+        if dialog:
+            self.zoomToAction = QtWidgets.QAction('Zoom to ...')
+            self.setDefaultAction(self.zoomToAction)
+            self.zoomToAction.triggered.connect(self._show_zoom_to_dialog)
+        else:
+            # Menu
+            self.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+            self.setText("Zoom to..")
+            range_menu = QtWidgets.QMenu()
+            for name, duration in RANGES:
+                self.make_range_handler(range_menu, name, duration)
+            self.setMenu(range_menu)
+
+    def _show_zoom_to_dialog(self):
+        dialog = TimeSpanDialog(self)
+        dialog.exec()
+    
+    def make_range_handler(self, menu, name, duration):
+        def handler():
+            self.update_function(name, duration)
+        zoom_action = menu.addAction(name)
+        zoom_action.triggered.connect(handler)
+
+    def update_function(self, name, duration):
+        logger.debug('Zooming to %s', name)
+        t2 = TimeStamp.now()
+        t1 = t2 - duration
+        timespan = TimeSpan(t1, t2)
+        self._zoom_agent.zoom_to(timespan)
+  
 
 class TimeSpanQuick(QtWidgets.QWidget):
     """ Quick tab for often used time spans """
 
     def __init__(self, update_function):
         super().__init__()
+        self._update_function = update_function
         l = QtWidgets.QGridLayout(self)
         n_cols = max(1, int(math.sqrt(len(RANGES))))
         for i, name in enumerate(RANGES):
-            btn = QtWidgets.QPushButton()
             row, col = i // n_cols, i % n_cols
-            l.addWidget(btn, row, col)
-            btn.setText(name)
-            btn.clicked.connect(lambda: update_function(name))
+            button = self.add_button(name)
+            l.addWidget(button, row, col)
 
+    def add_button(self, name):
+        button = QtWidgets.QPushButton()
+        button.setText(name)
+        button.clicked.connect(lambda: self._update_function(name))
+        return button
+    
 
-class TimeSpanWidget(QtWidgets.QWidget):
-    """ Show the current timespan and provide options to modify it. """
+class TimeSpanDialog(QtWidgets.QDialog):
+    def __init__(self, parent):
+        super().__init__(parent)
+        l = QtWidgets.QVBoxLayout()
+        self.quick = TimeSpanQuick(self.update_function)
+        l.addWidget(self.quick)
+        self.setLayout(l)
 
-    def __init__(self, zoom_agent):
-        super().__init__()
-        self._zoom_agent = zoom_agent
-        vbox = QtWidgets.QVBoxLayout(self)
-        self.range_button = QtWidgets.QPushButton()
-        self.range_button.setCheckable(True)
-        self.range_button.setText("Last week")
-        vbox.addWidget(self.range_button)
-        self.quick = TimeSpanQuick(self.updateTimespan)
-        self.quick.setVisible(False)
-        vbox.addWidget(self.quick)
-
-        # Connect events:
-        self.range_button.toggled.connect(self.quick.setVisible)
-
-    def updateTimespan(self, name):
-        self.range_button.setChecked(False)
+    def update_function(self, name):
         print(name)
+        # self.range_button.setChecked(False)
         timespan = 1  # TODO!
-        self._zoom_agent.zoom_to(timespan)
+        # self._zoom_agent.zoom_to(timespan)
+        self.close()

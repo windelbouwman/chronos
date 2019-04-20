@@ -8,6 +8,11 @@ from .mouse_select_widget import MouseSelectableWidget
 from ...data import TimeStamp, Trace
 
 
+class ValueAxis:
+    def draw(self):
+        pass
+
+
 class GraphWidget(MouseSelectableWidget):
     """ Implements plotting of a signal by using paintEvent.
     """
@@ -55,9 +60,9 @@ class GraphWidget(MouseSelectableWidget):
 
     def add_trace(self, trace):
         """ Add a trace to this graph. """
-        assert isinstance(trace, Trace)
+        assert isinstance(trace.trace, Trace)
         self._traces.append(trace)
-        trace.data_changed.subscribe(self.on_data_changed)
+        trace.trace.data_changed.subscribe(self.on_data_changed)
         self.update()
 
     def on_data_changed(self):
@@ -87,7 +92,6 @@ class GraphWidget(MouseSelectableWidget):
         self.draw_signals(painter, event.rect())
         self.draw_cursor(painter, event.rect())
         self.draw_current_value(painter)
-        self.draw_legend(painter, event.rect())
 
     def draw_signals(self, painter, rect):
         for trace in self._traces:
@@ -95,16 +99,16 @@ class GraphWidget(MouseSelectableWidget):
             # samples in view, and also resample the samples
             # so that we do not draw millions of points.
             # print(trace)
-            points = trace.samples
-            pen = QtGui.QPen(Qt.red)
+            points = trace.trace.samples
+            pen = QtGui.QPen(trace.color)
             pen.setWidth(2)
             painter.setPen(pen)
 
             for p1, p2 in zip(points[:-1], points[1:]):
-                x1 = self.timestamp_to_pixel(p1[0])
-                y1 = self.value_to_pixel(p1[1])
-                x2 = self.timestamp_to_pixel(p2[0])
-                y2 = self.value_to_pixel(p2[1])
+                x1 = self.timestamp_to_pixel(p1.timestamp)
+                y1 = self.value_to_pixel(p1.value)
+                x2 = self.timestamp_to_pixel(p2.timestamp)
+                y2 = self.value_to_pixel(p2.value)
                 painter.drawLine(x1, y1, x2, y2)
 
     def get_y_ticks(self):
@@ -129,6 +133,7 @@ class GraphWidget(MouseSelectableWidget):
             painter.drawLine(x0, y, x0 + 15, y)
             text = str(value)
             text_height = font_metrics.boundingRect(text).height()
+            # print(y, text_height, text)
             painter.drawText(x0 + 20, y + (text_height / 2), text)
 
 
@@ -167,26 +172,9 @@ class GraphWidget(MouseSelectableWidget):
             y = 25
 
             for trace in self._traces:
+                continue
+                # TODO: figure proper value.
                 cursor_value = 12
-                text = '{}={}'.format(trace.name, cursor_value)
+                text = '{}={}'.format(trace.trace.name, cursor_value)
                 painter.drawText(x, y, text)
                 y += 15
-
-    def draw_legend(self, painter, rect):
-        if self._traces:
-            font_metrics = painter.fontMetrics()
-            width = max(font_metrics.boundingRect(t.name).width() for t in self._traces)
-            height = font_metrics.boundingRect("X").height()
-
-            pen = QtGui.QPen(Qt.black)
-            pen.setWidth(1)
-            painter.setPen(pen)
-            x = 10
-            y = 10
-            legend_rect = QtCore.QRect(x - 4, y - 2, width + 8, height*len(self._traces)+8)
-            painter.fillRect(legend_rect, Qt.white)
-            painter.drawRect(legend_rect)
-            for trace in self._traces:
-                y += height
-                painter.drawText(x, y, trace.name)
-                

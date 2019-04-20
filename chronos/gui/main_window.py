@@ -1,12 +1,13 @@
 from PyQt5 import uic
 from .qt_wrapper import QtWidgets, Qt, QtCore
+import logging
 
 # from .graph_widget import GraphWidget
 from .fubar import Fubar
-from .timespan_widget import TimeSpanWidget
+from .timespan_widget import TimeSpanToolButton
 from .signal_widget import SignalSourceWidget
 from .zoom_agent import ZoomAgent
-from ..data import DataStore
+from ..data import DataStore, TimeSpan
 from ..data_plugins.demo import DemoDataSource
 
 class Context:
@@ -16,9 +17,19 @@ class Context:
     - zoom agent: for shared zooming.
     - database: all data goes in and out here.
     """
+
+    logger = logging.getLogger("Data-glu0r")
+
     def __init__(self):
         self.zoom_agent = ZoomAgent()
         self.database = DataStore()
+
+    def zoom_fit(self):
+        # Has to be done on context, must loop over all data, and determine date range!
+        self.logger.info("Zoom fit!!")
+        # TODO: This might fail when no data source is selected and there can be no min / max.
+        timespan = self.database.get_timespan()
+        self.zoom_agent.zoom_to(timespan)
 
 
 class ChronosMainWindow(QtWidgets.QMainWindow):
@@ -34,21 +45,18 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
         # self._zoom_agent = ZoomAgent()
         self.bar_charts = Fubar(self._context.zoom_agent, self._context.database)
         self.setCentralWidget(self.bar_charts)
-        self.timeSpanWidget = TimeSpanWidget(self._context.zoom_agent)
-        self.timeSpanDockWidget.setWidget(self.timeSpanWidget)
 
         self.signalsDockWidget.setWindowTitle("Signals")
         self._signal_widget = SignalSourceWidget(self._context.database)
         self.signalsDockWidget.setWidget(self._signal_widget)
 
-        self.menuView.addAction(self.timeSpanDockWidget.toggleViewAction())
+        # self.menuView.addAction(self.timeSpanDockWidget.toggleViewAction())
         self.menuView.addAction(self.signalsDockWidget.toggleViewAction())
 
-        self.actionZoomFit.triggered.connect(self._context.zoom_agent.zoom_fit)
-        self.actionZoomOut.triggered.connect(self._context.zoom_agent.zoom_out)
-        self.actionZoomIn.triggered.connect(self._context.zoom_agent.zoom_in)
-        self.actionPanLeft.triggered.connect(self._context.zoom_agent.pan_left)
-        self.actionPanRight.triggered.connect(self._context.zoom_agent.pan_right)
+        self.add_zoom_buttons()
+        self.mainToolBar.addSeparator()
+        self.make_mouse_mode_buttons()
+        self.mainToolBar.addSeparator()
 
         self.actionSaveSession.triggered.connect(self._save_session)
 
@@ -58,6 +66,38 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
         self.resize(settings.value("size", QtCore.QSize(400, 300)))
         self.move(settings.value("pos", QtCore.QPoint(50, 50)))
         settings.endGroup()
+
+    def add_zoom_buttons(self):
+        self.actionZoomFit.triggered.connect(self._context.zoom_fit)
+        self.actionZoomOut.triggered.connect(self._context.zoom_agent.zoom_out)
+        self.actionZoomIn.triggered.connect(self._context.zoom_agent.zoom_in)
+        self.actionPanLeft.triggered.connect(self._context.zoom_agent.pan_left)
+        self.actionPanRight.triggered.connect(self._context.zoom_agent.pan_right)
+
+        self.zoomToToolButton = TimeSpanToolButton(self._context.zoom_agent)
+        self.mainToolBar.addWidget(self.zoomToToolButton)
+
+    def make_mouse_mode_buttons(self):
+        # Construct zoom mode buttons:
+        self._zoom_mode_button_group = QtWidgets.QButtonGroup()
+
+        zoom_horizontal = QtWidgets.QToolButton()
+        zoom_horizontal.setCheckable(True)
+        zoom_horizontal.setText("Zoom horizontal")
+        self.mainToolBar.addWidget(zoom_horizontal)
+        self._zoom_mode_button_group.addButton(zoom_horizontal, 1)
+
+        zoom = QtWidgets.QToolButton()
+        zoom.setCheckable(True)
+        zoom.setText("Zoom")
+        self.mainToolBar.addWidget(zoom)
+        self._zoom_mode_button_group.addButton(zoom, 2)
+
+        pan_horizontal = QtWidgets.QToolButton()
+        pan_horizontal.setCheckable(True)
+        pan_horizontal.setText("Pan horizontal")
+        self.mainToolBar.addWidget(pan_horizontal)
+        self._zoom_mode_button_group.addButton(pan_horizontal, 3)
 
     def _save_session(self):
         """ Save current datasources and views into a session.

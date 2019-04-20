@@ -40,14 +40,6 @@ class ZoomAgent(QtCore.QObject):
         t1 = self.pixel_to_timestamp(pixels)
         return t1 - t0
 
-    def zoom_fit(self):
-        self.logger.info("Zoom fit!!")
-
-        # TODO: fit to data, for now reset transform..
-        self._transform._a = 1
-        self._transform._b = 0
-        self.zoom_changed.emit()
-
     def get_current_timespan(self):
         # Calculate current timespan:
         return TimeSpan(

@@ -4,7 +4,8 @@
 import math
 import threading
 import time
-from ..data import SignalTrace, LogTrace, LogRecord, TraceDataSource, TimeStamp, TraceGroup
+from ..data import SignalTrace, SignalRecord, LogTrace, LogRecord
+from ..data import TraceDataSource, TimeStamp, TraceGroup
 from ..data import DataSource
 
 
@@ -26,17 +27,17 @@ class DemoDataSource(DataSource):
         self.data_source.add_item(group1)
 
         self._trace1 = SignalTrace('trace1')
-        points1 = [(TimeStamp(x), math.sin(x * 0.03) * 80 + 40) for x in xs]
+        points1 = [SignalRecord(TimeStamp(x), math.sin(x * 0.03) * 80 + 40) for x in xs]
         self._trace1.add(points1)
         group1.add_item(self._trace1)
 
         trace2 = SignalTrace('trace2')
-        points2 = [(TimeStamp(x), math.sin(x * 0.6) * 30 + 20) for x in xs]
+        points2 = [SignalRecord(TimeStamp(x), math.sin(x * 0.6) * 30 + 20) for x in xs]
         trace2.add(points2)
         group1.add_item(trace2)
 
         self._trace3 = SignalTrace('sine3')
-        points3 = [(TimeStamp(x), math.cos(x * 0.6) * 20 + 70) for x in xs]
+        points3 = [SignalRecord(TimeStamp(x), math.cos(x * 0.6) * 20 + 70) for x in xs]
         self._trace3.add(points3)
         self.data_source.add_item(self._trace3)
 
@@ -64,14 +65,14 @@ class DemoDataSource(DataSource):
             self._x += 1
             # print('running!')
             ts = TimeStamp(self._x)
-            point = (ts, math.sin(self._x * 0.2) * 80 + 40)
+            point = SignalRecord(ts, math.sin(self._x * 0.2) * 80 + 40)
             self._trace1.add(point)
-            point = (ts, math.cos(self._x * 0.6) * 20 + 70)
+            point = SignalRecord(ts, math.cos(self._x * 0.6) * 20 + 70)
             self._trace3.add(point)
-            point = (ts, self._x % 50)
+            point = SignalRecord(ts, self._x % 50)
             self._trace4.add(point)
             if self._x % 37 == 0:
-                sample = (ts, LogRecord(ts, 0, 'x divisable by 37!!'))
+                sample = LogRecord(ts, 0, 'x divisable by 37!!')
                 self._log_trace.add(sample)
 
     def stop(self):

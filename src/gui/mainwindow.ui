@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>888</width>
+    <width>840</width>
     <height>603</height>
    </rect>
   </property>
@@ -19,7 +19,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>888</width>
+     <width>840</width>
      <height>22</height>
     </rect>
    </property>
@@ -61,15 +61,6 @@
    <addaction name="actionPanRight"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <widget class="QDockWidget" name="timeSpanDockWidget">
-   <property name="windowTitle">
-    <string>Timespan selection</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>4</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents"/>
-  </widget>
   <widget class="QDockWidget" name="signalsDockWidget">
    <property name="windowTitle">
     <string>Signal sources</string>

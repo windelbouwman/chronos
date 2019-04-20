@@ -23,7 +23,9 @@ class DataSourceModel(QtCore.QAbstractItemModel):
             "Signal",
             "Last value",
             "Samples",
-            "Type"
+            "Type",
+            "First time",
+            "Last time",
         ]
 
         self._database = database
@@ -86,7 +88,7 @@ class DataSourceModel(QtCore.QAbstractItemModel):
                 value = tree_item.name
             elif column == 1:  # last value.
                 if isinstance(tree_item, Trace) and tree_item.has_samples:
-                    value = str(tree_item.samples[-1][1])
+                    value = str(tree_item.samples[-1])
                 else:
                     value = ''
             elif column == 2:  # num samples
@@ -94,8 +96,20 @@ class DataSourceModel(QtCore.QAbstractItemModel):
                     value = str(len(tree_item.samples))
                 else:
                     value = ''
-            else:  # type
+            elif column == 3:  # type
                 value = str(tree_item.__class__)
+            elif column == 4:  # first time
+                if isinstance(tree_item, Trace) and tree_item.has_samples:
+                    value = str(tree_item.samples[0].timestamp)
+                else:
+                    value = ''
+            elif column == 5:  # end time
+                if isinstance(tree_item, Trace) and tree_item.has_samples:
+                    value = str(tree_item.samples[-1].timestamp)
+                else:
+                    value = ''
+            else:
+                raise NotImplementedError(str(column))
             return value
 
     def flags(self, index):
