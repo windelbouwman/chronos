@@ -20,16 +20,10 @@ class GraphWidget(MouseSelectableWidget):
     def __init__(self, zoom_agent):
         super().__init__(zoom_agent)
         self._traces = []
-        self._zoom_levels = [
-            1,
-            5,
-            10,
-            50,
-            100,
-            500,
-            1000,
-            5000
-        ]
+        self._zoom_levels = []
+        for a in range(-2, 20):
+            for b in [1, 2, 5]:
+                self._zoom_levels.append(b * 10**a)
         self._current_zoom_level = 3
         self._unit_per_div = self._zoom_levels[self._current_zoom_level]
         self._div_size = 30  # Pixels per division, horizontal as well as vertical.
@@ -41,6 +35,8 @@ class GraphWidget(MouseSelectableWidget):
         )
         self.setSizePolicy(policy)
         self.setFixedHeight(self._div_size * self._num_vertical_divs)
+
+        self.setToolTip("Drag data signals into this plot them!")
 
     def zoom_in(self):
         self.set_zoom_level(self._current_zoom_level - 1)

@@ -11,9 +11,10 @@ Hierarchy is as follows:
   - data source
 """
 
-from .qt_wrapper import QtCore, Qt
+from .qt_wrapper import QtCore, Qt, get_icon
 import json
-from ..data import TreeItem, Trace
+from ..data import TreeItem, Trace, TraceGroup, TraceDataSource
+from ..data import LogTrace, SignalTrace
 
 
 class DataSourceModel(QtCore.QAbstractItemModel):
@@ -82,8 +83,8 @@ class DataSourceModel(QtCore.QAbstractItemModel):
 
         row = index.row()
         column = index.column()
+        tree_item = index.internalPointer()
         if role == Qt.DisplayRole:
-            tree_item = index.internalPointer()
             if column == 0:
                 value = tree_item.name
             elif column == 1:  # last value.
@@ -97,7 +98,7 @@ class DataSourceModel(QtCore.QAbstractItemModel):
                 else:
                     value = ''
             elif column == 3:  # type
-                value = str(tree_item.__class__)
+                value = tree_item.type_name()
             elif column == 4:  # first time
                 if isinstance(tree_item, Trace) and tree_item.has_samples:
                     value = str(tree_item.samples[0].timestamp)
@@ -111,6 +112,16 @@ class DataSourceModel(QtCore.QAbstractItemModel):
             else:
                 raise NotImplementedError(str(column))
             return value
+        elif role == Qt.DecorationRole:
+            if column == 0:
+                if isinstance(tree_item, TraceGroup):
+                    return get_icon('folder')
+                elif isinstance(tree_item, TraceDataSource):
+                    return get_icon('database')
+                elif isinstance(tree_item, SignalTrace):
+                    return get_icon('stocks')
+                elif isinstance(tree_item, LogTrace):
+                    return get_icon('event-log')
 
     def flags(self, index):
         flags = super().flags(index)

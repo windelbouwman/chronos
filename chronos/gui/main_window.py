@@ -1,14 +1,17 @@
 from PyQt5 import uic
-from .qt_wrapper import QtWidgets, Qt, QtCore
+from .qt_wrapper import QtWidgets, Qt, QtCore, get_icon
 import logging
+import os
 
 # from .graph_widget import GraphWidget
 from .fubar import Fubar
 from .timespan_widget import TimeSpanToolButton
 from .signal_widget import SignalSourceWidget
 from .zoom_agent import ZoomAgent
+from .about_dialog import AboutDialog
 from ..data import DataStore, TimeSpan
 from ..data_plugins.demo import DemoDataSource
+
 
 class Context:
     """ Sort of global state container.
@@ -51,6 +54,7 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
         self.signalsDockWidget.setWidget(self._signal_widget)
 
         # self.menuView.addAction(self.timeSpanDockWidget.toggleViewAction())
+        self.actionAbout.triggered.connect(self.show_about_dialog)
         self.menuView.addAction(self.signalsDockWidget.toggleViewAction())
 
         self.add_zoom_buttons()
@@ -67,11 +71,20 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
         self.move(settings.value("pos", QtCore.QPoint(50, 50)))
         settings.endGroup()
 
+    def show_about_dialog(self):
+        about_dialog = AboutDialog(self)
+        about_dialog.exec()
+
     def add_zoom_buttons(self):
+        self.actionZoomFit.setIcon(get_icon('zoom-to-extents'))
         self.actionZoomFit.triggered.connect(self._context.zoom_fit)
+        self.actionZoomOut.setIcon(get_icon('zoom-out'))
         self.actionZoomOut.triggered.connect(self._context.zoom_agent.zoom_out)
+        self.actionZoomIn.setIcon(get_icon('zoom-in'))
         self.actionZoomIn.triggered.connect(self._context.zoom_agent.zoom_in)
+        self.actionPanLeft.setIcon(get_icon('back-arrow'))
         self.actionPanLeft.triggered.connect(self._context.zoom_agent.pan_left)
+        self.actionPanRight.setIcon(get_icon('forward-button'))
         self.actionPanRight.triggered.connect(self._context.zoom_agent.pan_right)
 
         self.zoomToToolButton = TimeSpanToolButton(self._context.zoom_agent)

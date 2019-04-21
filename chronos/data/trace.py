@@ -2,8 +2,10 @@
 
 """
 
+import abc
 
-class TreeItem:
+
+class TreeItem(metaclass=abc.ABCMeta):
     def __init__(self):
         self.children = []
         self.parent = None
@@ -26,6 +28,10 @@ class TreeItem:
     def size(self):
         return sum(c.size for c in self.children)
 
+    @abc.abstractmethod
+    def type_name(self):
+        raise NotImplementedError()
+
 
 class TraceDataSource(TreeItem):
     """ A source of tracedata.
@@ -41,6 +47,9 @@ class TraceDataSource(TreeItem):
     def get_uri(self):
         return 'tracedatasource://{}'.format(id(self))
 
+    def type_name(self):
+        return 'DataSource'
+
 
 class TraceGroup(TreeItem):
     """ A trace group / folder. """
@@ -51,6 +60,9 @@ class TraceGroup(TreeItem):
 
     def get_uri(self):
         return 'tracegroup://{}'.format(id(self))
+
+    def type_name(self):
+        return 'TraceGroup'
 
 
 class Event:
@@ -100,11 +112,17 @@ class SignalTrace(Trace):
     def get_uri(self):
         return 'signaltrace://{}'.format(id(self))
 
+    def type_name(self):
+        return 'SignalTrace'
+
 
 class LogTrace(Trace):
     """ A trace with log events. """
     def get_uri(self):
         return 'logtrace://{}'.format(id(self))
+
+    def type_name(self):
+        return 'LogTrace'
 
 
 class FunctionCallTrace(Trace):

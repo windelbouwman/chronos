@@ -15,6 +15,8 @@ class LogRecordsWidget(MouseSelectableWidget):
         self.setSizePolicy(policy)
         self.setFixedHeight(120)
 
+        self.setToolTip("Drag log traces onto me to show them!")
+
     def add_trace(self, trace):
         self._traces.append(trace)
         trace.data_changed.subscribe(self.on_data_changed)
@@ -46,7 +48,7 @@ class LogRecordsWidget(MouseSelectableWidget):
         """ Draw log records in w00t-style cool way. """
         _num_lanes = 5  # Try to print non-overlapping log messages.
         for trace in self._traces:
-            for _, record in trace.samples:
+            for record in trace.samples:
                 self.draw_record(painter, record)
 
     def draw_record(self, painter, record):

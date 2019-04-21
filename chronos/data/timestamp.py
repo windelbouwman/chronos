@@ -11,14 +11,20 @@ class TimeStamp:
         stamp = time.time()
         return cls(stamp)
 
+    def __int__(self):
+        return int(self.stamp)
+
     def copy(self):
         return TimeStamp(self.stamp)
 
     def __str__(self):
-        return f"t={self.stamp}"
+        return f"t={time.ctime(self.stamp)}"
 
     def __gt__(self, other):
-        return self.stamp > other.stamp
+        if isinstance(other, TimeStamp):
+            return self.stamp > other.stamp
+        else:
+            return NotImplemented
 
     def __sub__(self, other):
         if isinstance(other, TimeStamp):

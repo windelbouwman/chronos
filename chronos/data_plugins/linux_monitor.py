@@ -1,8 +1,8 @@
 import threading
 import time
 
-from ..data import Trace, TraceDataSource, TimeStamp, TraceGroup
-from ..data import TimeStamp
+from ..data import SignalTrace, TraceDataSource, TimeStamp, TraceGroup
+from ..data import TimeStamp, SignalRecord
 
 
 class DataPlugin:
@@ -28,7 +28,7 @@ class LinuxDataSource(DataPlugin):
         self._running = False
 
         for field_name in self._field_names:
-            trace = Trace(field_name)
+            trace = SignalTrace(field_name)
             self.data_source.add_item(trace)
             self._trace_map[field_name] = trace
 
@@ -67,6 +67,6 @@ class LinuxDataSource(DataPlugin):
 
                     for i, field_name in enumerate(self._field_names, 1):
                         value = int(parts[i])
-                        sample = (timestamp, value)
+                        sample = SignalRecord(timestamp, value)
                         trace = self._trace_map[field_name]
                         trace.add(sample)

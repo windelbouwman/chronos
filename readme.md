@@ -3,6 +3,17 @@
 
 Tracing on steroids.
 
+Something like [Kst](https://kst-plot.kde.org/)
+
+Also something like [Grafana](https://grafana.com/)
+
+But then also something different:
+
+- Offline desktop application
+- Ease working with time series
+- Live data visualization
+- Combined signal and text logging
+
 # Introduction
 
 Chronos is a logging and signal recording and viewing tool. It is intended
@@ -39,3 +50,6 @@ $ python -m chronos
 
 [![Build status](https://ci.appveyor.com/api/projects/status/cj1m66gmbfdv4td3?svg=true)](https://ci.appveyor.com/project/WindelBouwman/chronos)
 
+# Credits
+
+Icons from: https://icons8.com/

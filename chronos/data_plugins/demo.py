@@ -19,8 +19,8 @@ class DemoPlugin:
 class DemoDataSource(DataSource):
     """ Demo data source. """
     def __init__(self):
-        self._x = 300
-        xs = range(300)
+        self._x = int(TimeStamp.now())
+        xs = range(self._x - 300, self._x)
         self.data_source = TraceDataSource('demo')
 
         group1 = TraceGroup('group1')
