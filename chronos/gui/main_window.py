@@ -96,19 +96,22 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
 
         zoom_horizontal = QtWidgets.QToolButton()
         zoom_horizontal.setCheckable(True)
+        zoom_horizontal.setChecked(True)
         zoom_horizontal.setText("Zoom horizontal")
+        zoom_horizontal.setIcon(get_icon('zoom'))
         self.mainToolBar.addWidget(zoom_horizontal)
         self._zoom_mode_button_group.addButton(zoom_horizontal, 1)
 
-        zoom = QtWidgets.QToolButton()
-        zoom.setCheckable(True)
-        zoom.setText("Zoom")
-        self.mainToolBar.addWidget(zoom)
-        self._zoom_mode_button_group.addButton(zoom, 2)
+        # zoom = QtWidgets.QToolButton()
+        # zoom.setCheckable(True)
+        # zoom.setText("Zoom")
+        # self.mainToolBar.addWidget(zoom)
+        # self._zoom_mode_button_group.addButton(zoom, 2)
 
         pan_horizontal = QtWidgets.QToolButton()
         pan_horizontal.setCheckable(True)
         pan_horizontal.setText("Pan horizontal")
+        pan_horizontal.setIcon(get_icon('move'))
         self.mainToolBar.addWidget(pan_horizontal)
         self._zoom_mode_button_group.addButton(pan_horizontal, 3)
 

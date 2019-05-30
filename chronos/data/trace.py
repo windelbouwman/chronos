@@ -106,6 +106,33 @@ class Trace(TreeItem):
 
         self.data_changed()
 
+    def find_nearest_sample(self, timestamp):
+        """ Find sample which is nearest to the given timestamp. """
+        if self.has_samples:
+            if timestamp < self.samples[0].timestamp:
+                return self.samples[0]
+            elif self.samples[-1].timestamp < timestamp:
+                return self.samples[-1]
+            else:
+                assert len(self.samples) > 1
+                # Ow snap, we need to find a sample..
+                i1 = 0
+                i2 = 0
+                i3 = len(self.samples) - 1
+                # print(i1, i2, i3)
+                while i1 + 1 != i3:
+                    assert i3 > i1
+                    i2 = (i1 + i3) // 2  # mid sample
+                    mid_sample = self.samples[i2]
+                    if timestamp < mid_sample.timestamp:
+                        i3 = i2
+                    else:
+                        i1 = i2
+                    # print(i1, i2, i3)
+                # TODO: pick closest of two? Nah, just pick index 1.
+                return self.samples[i1]
+        # while i1 != i2:
+
 
 class SignalTrace(Trace):
     """ A signal trace of scalar values over time. """

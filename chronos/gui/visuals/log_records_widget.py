@@ -36,12 +36,11 @@ class LogRecordsWidget(MouseSelectableWidget):
 
     def draw_grid(self, painter, rect):
         painter.setPen(Qt.black)
-        ticks = self.calc_ticks()
+        ticks = self.get_x_ticks()
         y0 = 0
         y2 = self.height()
 
-        for tick in ticks:
-            x = self.timestamp_to_pixel(tick)
+        for x, _ in ticks:
             painter.drawLine(x, y0, x, y2)
 
     def draw_logs(self, painter, rect):

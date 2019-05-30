@@ -8,11 +8,6 @@ from .mouse_select_widget import MouseSelectableWidget
 from ...data import TimeStamp, Trace
 
 
-class ValueAxis:
-    def draw(self):
-        pass
-
-
 class GraphWidget(MouseSelectableWidget):
     """ Implements plotting of a signal by using paintEvent.
     """
@@ -21,6 +16,8 @@ class GraphWidget(MouseSelectableWidget):
         super().__init__(zoom_agent)
         self._traces = []
         self._zoom_levels = []
+        self._padding = 3
+        self._tick_length = 5
         for a in range(-2, 20):
             for b in [1, 2, 5]:
                 self._zoom_levels.append(b * 10**a)
@@ -60,6 +57,12 @@ class GraphWidget(MouseSelectableWidget):
         self._traces.append(trace)
         trace.trace.data_changed.subscribe(self.on_data_changed)
         self.update()
+    
+    def remove_trace(self, trace):
+        assert isinstance(trace.trace, Trace)
+        self._traces.remove(trace)
+        trace.trace.data_changed.unsubscribe(self.on_data_changed)
+        self.update()
 
     def on_data_changed(self):
         self.update()
@@ -71,25 +74,59 @@ class GraphWidget(MouseSelectableWidget):
         return pixel
 
     def paintEvent(self, event):
+        """ And so the journey begins. The drawing of a plot...
+
+        A journey of a thousand miles begins with
+        the first step... lets clear the background ;)
+        """
         super().paintEvent(event)
+
+        # Clear background:
         painter = QtGui.QPainter(self)
         painter.fillRect(event.rect(), Qt.white)
 
-        # Draw square
-        painter.setPen(Qt.black)
-        painter.drawLine(0, 0, self.width() - 1, 0)
-        painter.drawLine(0, self.height() - 1, self.width() - 1, self.height() - 1)
-        painter.drawLine(0, 0, 0, self.height() - 1)
-        painter.drawLine(self.width() - 1, 0, self.width() - 1, self.height() - 1)
+        x_ticks = self.get_x_ticks()
+
+        # Calculate the height of the bottom tick markers
+        font_metrics = painter.fontMetrics()
+        text_height = max(font_metrics.boundingRect(t[1]).height() for t in x_ticks)
+
+        y_top = self._padding
+        y_bottom = self.height() - 1 - self._padding - text_height - self._padding - self._tick_length
+
+        y_ticks = self.get_y_ticks(y_top, y_bottom)
+
+        max_y_label_width = max(font_metrics.boundingRect(t[1]).width() for t in y_ticks)
+        x_left = self._padding + max_y_label_width + self._padding + self._tick_length
+        x_right = self.width() - 1 - self._padding
+
+        top_left = QtCore.QPoint(x_left, y_top)
+        bottom_right = QtCore.QPoint(x_right, y_bottom)
+        chart_rect = QtCore.QRect(top_left, bottom_right)
 
         # Paint the several thingies:
-        self.draw_grid(painter, event.rect())
-        self.draw_value_axis(painter, event.rect())
-        self.draw_signals(painter, event.rect())
+        self.draw_square(painter, x_left, y_top, x_right, y_bottom)
+        self.draw_value_axis(painter, font_metrics, y_ticks, x_left, y_top, y_bottom)
+        self.draw_time_axis(painter, font_metrics, x_ticks, y_bottom, x_left)
+
+        # Now set clipping region to valid graph region:
+        painter.setClipRect(chart_rect)
+        painter.setClipping(True)
+        self.draw_grid(painter, x_ticks, y_ticks, x_left, y_top, x_right, y_bottom)
+        self.draw_signals(painter)
         self.draw_cursor(painter, event.rect())
         self.draw_current_value(painter)
 
-    def draw_signals(self, painter, rect):
+    def draw_square(self, painter, x_left, y_top, x_right, y_bottom):
+        painter.setPen(Qt.black)
+        painter.drawLine(x_left, y_top, x_right, y_top)
+        painter.drawLine(x_left, y_bottom, x_right, y_bottom)
+        painter.drawLine(x_left, y_top, x_left, y_bottom)
+        painter.drawLine(x_right, y_top, x_right, y_bottom)
+
+    def draw_signals(self, painter):
+        # this line below renders top-notch stuff, but also slows down the drawing a bit!
+        # painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
         for trace in self._traces:
             # TODO: instead of getting all samples, only get
             # samples in view, and also resample the samples
@@ -100,77 +137,103 @@ class GraphWidget(MouseSelectableWidget):
             pen.setWidth(2)
             painter.setPen(pen)
 
-            for p1, p2 in zip(points[:-1], points[1:]):
-                x1 = self.timestamp_to_pixel(p1.timestamp)
-                y1 = self.value_to_pixel(p1.value)
-                x2 = self.timestamp_to_pixel(p2.timestamp)
-                y2 = self.value_to_pixel(p2.value)
-                painter.drawLine(x1, y1, x2, y2)
+            # Create Qt points at pixel locations:
+            qpoints = [
+                QtCore.QPoint(self.timestamp_to_pixel(p.timestamp), self.value_to_pixel(p.value))
+                for p in points
+            ]
 
-    def get_y_ticks(self):
+            painter.drawPolyline(QtGui.QPolygon(qpoints))
+
+    def get_y_ticks(self, y_top, y_bottom):
         """ Get a series of y,value pairs. """
         ticks = []
         for i in range(self._num_vertical_divs + 1):
             y = i * self._div_size
-            value = ((self._num_vertical_divs // 2) - i) * self._unit_per_div
-            ticks.append((y, value))
+            text = str(((self._num_vertical_divs // 2) - i) * self._unit_per_div)
+            ticks.append((y, text))
         return ticks
 
-    def draw_value_axis(self, painter, rect):
+    def draw_time_axis(self, painter, font_metrics, x_ticks, y_bottom, x_left):
         pen = QtGui.QPen(Qt.black)
         pen.setWidth(2)
         painter.setPen(pen)
 
-        font_metrics = painter.fontMetrics()
-        ticks = self.get_y_ticks()
+        for x, text in x_ticks:
+            if x < x_left:
+                continue
+            painter.drawLine(x, y_bottom, x, y_bottom + self._tick_length)
+            text_rect = font_metrics.boundingRect(text)
+            text_height = text_rect.height()
+            text_width = text_rect.width()
+            y = y_bottom + self._tick_length + self._padding + text_height
+            painter.drawText(x - text_width // 2, y, text)
 
-        x0 = 0
-        for y, value in ticks:
-            painter.drawLine(x0, y, x0 + 15, y)
-            text = str(value)
-            text_height = font_metrics.boundingRect(text).height()
+    def draw_value_axis(self, painter, font_metrics, y_ticks, x_left, y_top, y_bottom):
+        """ Draw Y-axis ticks. """
+        pen = QtGui.QPen(Qt.black)
+        pen.setWidth(2)
+        painter.setPen(pen)
+
+        for y, text in y_ticks:
+            if y < y_top:
+                continue
+            elif y > y_bottom:
+                continue
+            painter.drawLine(x_left - self._tick_length, y, x_left, y)
+            text_rect = font_metrics.boundingRect(text)
+            dy = text_rect.y() + (text_rect.height() // 2)
+            text_y = y - dy
+            text_width = text_rect.width()
             # print(y, text_height, text)
-            painter.drawText(x0 + 20, y + (text_height / 2), text)
+            x = x_left - self._tick_length - self._padding - text_width
+            # print(y, text, text_y, font_metrics, font_metrics.ascent(), text_rect)
+            painter.drawText(x, text_y, text)
 
-
-    def draw_grid(self, painter, rect):
+    def draw_grid(self, painter, x_ticks, y_ticks, x_left, y_top, x_right, y_bottom):
         """ Draw gridlines. """
         # TODO: fixed grid, variable legend on the ticks.
 
         # First draw a lightgray grid
         painter.setPen(Qt.lightGray)
 
-        x0, y0 = rect.x(), rect.y()
-        y2 = rect.y() + rect.height()
-        x2 = rect.x() + rect.width()
-
-        y_ticks = self.get_y_ticks()
         for y, _ in y_ticks:
-            painter.drawLine(x0, y, x2, y)
+            painter.drawLine(x_left, y, x_right, y)
 
         # Now drow major ticks:
         pen = QtGui.QPen(Qt.black)
         pen.setWidth(2)
         painter.setPen(pen)
-        major_ticks = self.calc_ticks()
+        
         # for x in range(x0, x2, spacing * 5):
-        for tick in major_ticks:
-            x = self.timestamp_to_pixel(tick)
-            painter.drawLine(x, y0, x, y2)
+        for x, _ in x_ticks:
+            painter.drawLine(x, y_top, x, y_bottom)
 
         # for y in range(y0, y2, spacing * 5):
         #     painter.drawLine(x0, y, x2, y)
 
     def draw_current_value(self, painter):
         if self._cursor is not None:
-            painter.setPen(Qt.black)
-            x = self.timestamp_to_pixel(self._cursor) + 4
-            y = 25
+            # x = self.timestamp_to_pixel(self._cursor) + 4
+            # y = 25
 
             for trace in self._traces:
-                continue
-                # TODO: figure proper value.
-                cursor_value = 12
-                text = '{}={}'.format(trace.trace.name, cursor_value)
-                painter.drawText(x, y, text)
-                y += 15
+                nearest_sample = trace.trace.find_nearest_sample(self._cursor)
+                if nearest_sample:
+                    painter.setPen(trace.color)
+
+                    x2 = self.timestamp_to_pixel(nearest_sample.timestamp)
+                    y2 = self.value_to_pixel(nearest_sample.value)
+
+                    # Draw marker circle:
+                    painter.drawEllipse(x2 - 5, y2 - 5, 10, 10)
+
+                    # Draw label:
+                    cursor_value = nearest_sample.value
+                    text = '{}={}'.format(trace.trace.name, cursor_value)
+                    painter.drawText(x2 + 10, y2 + 10, text)
+
+
+class ValueAxis:
+    def draw(self):
+        pass

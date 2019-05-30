@@ -24,7 +24,7 @@ class DataSourceModel(QtCore.QAbstractItemModel):
             "Signal",
             "Last value",
             "Samples",
-            "Type",
+            # "Type", --> obsolete, given by icon
             "First time",
             "Last time",
         ]
@@ -97,14 +97,14 @@ class DataSourceModel(QtCore.QAbstractItemModel):
                     value = str(len(tree_item.samples))
                 else:
                     value = ''
-            elif column == 3:  # type
-                value = tree_item.type_name()
-            elif column == 4:  # first time
+            # elif column == 3:  # type
+            #    value = tree_item.type_name()
+            elif column == 3:  # first time
                 if isinstance(tree_item, Trace) and tree_item.has_samples:
                     value = str(tree_item.samples[0].timestamp)
                 else:
                     value = ''
-            elif column == 5:  # end time
+            elif column == 4:  # end time
                 if isinstance(tree_item, Trace) and tree_item.has_samples:
                     value = str(tree_item.samples[-1].timestamp)
                 else:
@@ -119,7 +119,7 @@ class DataSourceModel(QtCore.QAbstractItemModel):
                 elif isinstance(tree_item, TraceDataSource):
                     return get_icon('database')
                 elif isinstance(tree_item, SignalTrace):
-                    return get_icon('stocks')
+                    return get_icon('graph')
                 elif isinstance(tree_item, LogTrace):
                     return get_icon('event-log')
 

@@ -35,19 +35,16 @@ class TimeAxisWidget(MouseSelectableWidget):
         painter.setPen(Qt.black)
 
         # Determine tick per scale some how?
-        major_ticks = self.calc_ticks()
+        ticks = self.get_x_ticks()
         y2 = self.height() - 1
         y1 = y2 - 10
 
         painter.drawLine(rect.x(), y2, rect.x() + rect.width(), y2)
 
         fontMetrics = painter.fontMetrics()
-        for tick in major_ticks:
-            x = self.timestamp_to_pixel(tick)
+        for x, label_text in ticks:
             painter.drawLine(x, y1, x, y2)
-            label_text = str(tick.stamp)
             label_rect = fontMetrics.boundingRect(label_text)
-
             painter.drawText(x - label_rect.width()/2, y1 - 5, label_text)
 
         # TODO: draw correct stuff

@@ -1,3 +1,4 @@
+import time
 import math
 from ..qt_wrapper import QtWidgets, QtGui, QtCore, Qt
 from ...data import TimeSpan, Duration
@@ -37,6 +38,28 @@ class MouseSelectableWidget(QtWidgets.QWidget):
     def pixels_to_duration(self, pixels):
         return self._zoom_agent.pixels_to_duration(pixels)
 
+    def get_x_ticks(self):
+        """ Return a list with x pixel positions and labels. """
+        timespan, scale, major_ticks = self.calc_ticks()
+
+        if scale.attos < 60:  # Below 1 minute step size
+            fmt = '%H:%M:%S'
+        elif scale.attos < 3600:  # Below 1 hour step size
+            fmt = '%H:%M'
+        else:  # Above 1 hour steps:
+            fmt = '%Y-%m-%d %H:%M'
+
+        def sensible_time_str(timestamp):
+            """ Convert ticks into pixel positions and text labels """
+            t2 = time.localtime(timestamp.stamp)
+            return time.strftime(fmt, t2)
+
+        x_ticks = [
+            (self.timestamp_to_pixel(t), sensible_time_str(t))
+            for t in major_ticks
+        ]
+        return x_ticks
+
     def calc_ticks(self):
         """ Calculate major ticks.
         """
@@ -45,7 +68,7 @@ class MouseSelectableWidget(QtWidgets.QWidget):
             self.pixel_to_timestamp(self._zoom_agent._width),
         )
 
-        tick_space = 50  # Minimum amount of pixels between tickzz
+        tick_space = 80  # Minimum amount of pixels between tickzz
         duration = self.pixels_to_duration(tick_space)
         # print(duration)
         # Round duration upwards to sensible multiple:
@@ -55,11 +78,19 @@ class MouseSelectableWidget(QtWidgets.QWidget):
             Duration.from_seconds(0.01),
             Duration.from_seconds(0.1),
             Duration.from_seconds(1),
+            Duration.from_seconds(5),
             Duration.from_seconds(10),
+            Duration.from_seconds(30),
             Duration.from_minutes(1),
             Duration.from_minutes(5),
+            Duration.from_minutes(10),
+            Duration.from_minutes(30),
             Duration.from_hours(1),
+            Duration.from_hours(5),
+            Duration.from_hours(12),
             Duration.from_days(1),
+            Duration.from_days(30),
+            Duration.from_days(365),
         ]
         for scale in scales:
             if duration < scale:
@@ -75,7 +106,7 @@ class MouseSelectableWidget(QtWidgets.QWidget):
             ticks.append(ts.copy())
             ts += scale
 
-        return ticks
+        return timespan, scale, ticks
 
     def enterEvent(self, event):
         super().enterEvent(event)

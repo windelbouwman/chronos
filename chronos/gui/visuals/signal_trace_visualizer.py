@@ -75,7 +75,8 @@ class SignalTraceVisualizer(TraceVisualizer):
             menu = QtWidgets.QMenu()
             def do_delete():
                 print('Delete!!')
-                # self.bar_charts.add_trace(tree)
+                self._graph.remove_trace(trace)
+                self._signal_list_model.remove_trace(trace)
             
             deleteAction = QtWidgets.QAction('Delete')
             deleteAction.triggered.connect(do_delete)
@@ -114,6 +115,10 @@ class SignalListModel(QtCore.QAbstractListModel):
         # self.beginInsertRows()
         self._traces.append(trace)
         # TODO: this is very brute force:
+        self.modelReset.emit()
+
+    def remove_trace(self, trace):
+        self._traces.remove(trace)
         self.modelReset.emit()
 
     def data(self, index, role):
