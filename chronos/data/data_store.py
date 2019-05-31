@@ -2,6 +2,8 @@
 
 from .trace import Trace
 from .timespan import TimeSpan
+from .timestamp import TimeStamp
+from .duration import Duration
 
 
 class DataStore:
@@ -35,8 +37,13 @@ class DataStore:
                 starts.append(tree.samples[0].timestamp)
                 ends.append(tree.samples[-1].timestamp)
 
-        start = min(starts)
-        end = max(ends)
+        if not starts:
+            now = TimeStamp.now()
+            start = now - Duration.from_minutes(5)
+            end = now + Duration.from_minutes(5)
+        else:
+            start = min(starts)
+            end = max(ends)
         return TimeSpan(start, end)
 
     def get_trace(self, uri):
