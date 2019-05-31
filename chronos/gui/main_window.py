@@ -7,7 +7,7 @@ import os
 from .fubar import Fubar
 from .timespan_widget import TimeSpanToolButton
 from .signal_widget import SignalSourceWidget
-from .zoom_agent import ZoomAgent
+from .zoom_agent import ZoomAgent, MouseMode
 from .about_dialog import AboutDialog
 from ..data import DataStore, TimeSpan
 from ..data_plugins.demo import DemoDataSource
@@ -43,7 +43,7 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
         uic.loadUi("src/gui/mainwindow.ui", self)
         self._context = Context()
         # Add some demo data sources:
-        self._context.database.sources.extend([DemoDataSource(), DemoDataSource()])
+        # self._context.database.sources.extend([DemoDataSource()])
 
         # self._zoom_agent = ZoomAgent()
         self.bar_charts = Fubar(self._context.zoom_agent, self._context.database)
@@ -100,7 +100,7 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
         zoom_horizontal.setText("Zoom horizontal")
         zoom_horizontal.setIcon(get_icon('zoom'))
         self.mainToolBar.addWidget(zoom_horizontal)
-        self._zoom_mode_button_group.addButton(zoom_horizontal, 1)
+        self._zoom_mode_button_group.addButton(zoom_horizontal, MouseMode.ZOOM_HORIZONTAL)
 
         # zoom = QtWidgets.QToolButton()
         # zoom.setCheckable(True)
@@ -113,7 +113,12 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
         pan_horizontal.setText("Pan horizontal")
         pan_horizontal.setIcon(get_icon('move'))
         self.mainToolBar.addWidget(pan_horizontal)
-        self._zoom_mode_button_group.addButton(pan_horizontal, 3)
+        self._zoom_mode_button_group.addButton(pan_horizontal, MouseMode.PANNING)
+        self._zoom_mode_button_group.buttonClicked[int].connect(self._on_zoom_button_clicked)
+
+    def _on_zoom_button_clicked(self, id):
+        self._context.zoom_agent.mouse_mode = id
+        # print('Button id:', id)
 
     def _save_session(self):
         """ Save current datasources and views into a session.

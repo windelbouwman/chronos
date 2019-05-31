@@ -13,15 +13,18 @@ logger = logging.getLogger('timespan_selection')
 
 
 RANGES = [
-    # last 30 nanoseconds
+    # TODO: use trigger for this: last 30 nanoseconds
     ("last 30 seconds", Duration.from_seconds(30)),
     ("last minute", Duration.from_minutes(1)),
+    ("last 5 minutes", Duration.from_minutes(5)),
+    ("last 10 minutes", Duration.from_minutes(10)),
     ("last 15 minutes", Duration.from_minutes(15)),
     ("last 30 minutes", Duration.from_minutes(30)),
     ("last hour", Duration.from_minutes(60)),
-    # "last week",
-    # "last month",
-    # "last year",
+    ("last day", Duration.from_days(1)),
+    ("last week", Duration.from_days(7)),
+    ("last month", Duration.from_days(30)),
+    ("last year", Duration.from_days(365)),
 ]
 
 
@@ -40,14 +43,14 @@ class TimeSpanToolButton(QtWidgets.QToolButton):
             self.setText("Zoom to..")
             range_menu = QtWidgets.QMenu()
             for name, duration in RANGES:
-                self.make_range_handler(range_menu, name, duration)
+                self._make_range_handler(range_menu, name, duration)
             self.setMenu(range_menu)
 
     def _show_zoom_to_dialog(self):
         dialog = TimeSpanDialog(self)
         dialog.exec()
     
-    def make_range_handler(self, menu, name, duration):
+    def _make_range_handler(self, menu, name, duration):
         def handler():
             self.update_function(name, duration)
         zoom_action = menu.addAction(name)
@@ -55,10 +58,7 @@ class TimeSpanToolButton(QtWidgets.QToolButton):
 
     def update_function(self, name, duration):
         logger.debug('Zooming to %s', name)
-        t2 = TimeStamp.now()
-        t1 = t2 - duration
-        timespan = TimeSpan(t1, t2)
-        self._zoom_agent.zoom_to(timespan)
+        self._zoom_agent.start_to_follow(duration)
   
 
 class TimeSpanQuick(QtWidgets.QWidget):

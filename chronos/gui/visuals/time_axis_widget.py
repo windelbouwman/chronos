@@ -13,6 +13,7 @@ class TimeAxisWidget(MouseSelectableWidget):
         policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Preferred
         )
+        self.setCursor(Qt.IBeamCursor)
         self.setSizePolicy(policy)
         self.setMinimumHeight(70)
 
@@ -21,7 +22,7 @@ class TimeAxisWidget(MouseSelectableWidget):
         painter = QtGui.QPainter(self)
         painter.fillRect(event.rect(), Qt.white)
 
-        self.draw_axis(painter, event.rect())
+        self.draw_axis(painter)
         self.draw_cursor(painter, event.rect())
 
         if self._cursor is not None:
@@ -31,7 +32,7 @@ class TimeAxisWidget(MouseSelectableWidget):
             y = 25
             painter.drawText(x + 4, y, text)
 
-    def draw_axis(self, painter, rect):
+    def draw_axis(self, painter):
         painter.setPen(Qt.black)
 
         # Determine tick per scale some how?
@@ -39,7 +40,7 @@ class TimeAxisWidget(MouseSelectableWidget):
         y2 = self.height() - 1
         y1 = y2 - 10
 
-        painter.drawLine(rect.x(), y2, rect.x() + rect.width(), y2)
+        painter.drawLine(0, y2, self.width(), y2)
 
         fontMetrics = painter.fontMetrics()
         for x, label_text in ticks:

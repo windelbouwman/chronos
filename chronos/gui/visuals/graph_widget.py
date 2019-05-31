@@ -6,6 +6,8 @@ import math
 from ..qt_wrapper import QtWidgets, QtGui, Qt, QtCore
 from .mouse_select_widget import MouseSelectableWidget
 from ...data import TimeStamp, Trace
+from ..transform import ValueTransform
+from ..zoom_agent import MouseMode
 
 
 class GraphWidget(MouseSelectableWidget):
@@ -15,40 +17,71 @@ class GraphWidget(MouseSelectableWidget):
     def __init__(self, zoom_agent):
         super().__init__(zoom_agent)
         self._traces = []
-        self._zoom_levels = []
         self._padding = 3
         self._tick_length = 5
-        for a in range(-2, 20):
-            for b in [1, 2, 5]:
-                self._zoom_levels.append(b * 10**a)
-        self._current_zoom_level = 3
-        self._unit_per_div = self._zoom_levels[self._current_zoom_level]
-        self._div_size = 30  # Pixels per division, horizontal as well as vertical.
-        self._num_vertical_divs = 10  # take 10 divs, like on oscilloscope.
+
+        self._y_scale = ValueTransform(a=-1)
 
         policy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.MinimumExpanding,
             QtWidgets.QSizePolicy.MinimumExpanding,
         )
         self.setSizePolicy(policy)
-        self.setFixedHeight(self._div_size * self._num_vertical_divs)
+        self.setMinimumHeight(450)
 
-        self.setToolTip("Drag data signals into this plot them!")
+        self.setCursor(Qt.IBeamCursor)
+        self._drag_source = None
+
+        # self.setToolTip("Drag data signals into this plot them!")
+
+    @property
+    def in_pan_mode(self):
+        return self._zoom_agent.mouse_mode == MouseMode.PANNING
+
+    @property
+    def is_panning(self):
+        return self.in_pan_mode and self._drag_source
+
+    def mousePressEvent(self, event):
+        super().mousePressEvent(event)
+        if self.in_pan_mode:
+            self._zoom_agent.stop_follow()
+            self._drag_source = event.x(), event.y()
+            self.update()
+
+    def mouseMoveEvent(self, event):
+        super().mouseMoveEvent(event)
+        if self.is_panning:
+            self._update_drag(event.x(), event.y())
+
+    def mouseReleaseEvent(self, event):
+        super().mouseReleaseEvent(event)
+        if self.is_panning:
+            self._update_drag(event.x(), event.y())
+            self._drag_source = None
+
+    def _update_drag(self, x, y):
+        x0, y0 = self._drag_source
+        if x != x0 or y != y0:
+            dy = y - y0
+            dx = x - x0
+
+            # Adjust axis:
+            self._y_scale._b += dy
+            self._zoom_agent._transform._b += dx
+
+            self._drag_source = (x, y)
+            self.update()
+
+    def zoom_fit(self):
+        print('FIT!')
 
     def zoom_in(self):
-        self.set_zoom_level(self._current_zoom_level - 1)
+        self._y_scale._a *= 2.0
+        self.update()
     
     def zoom_out(self):
-        self.set_zoom_level(self._current_zoom_level + 1)
-    
-    def set_zoom_level(self, level):
-        if level < 0:
-            level = 0
-        elif level >= len(self._zoom_levels):
-            level = len(self._zoom_levels) - 1
-        
-        self._current_zoom_level = level
-        self._unit_per_div = self._zoom_levels[self._current_zoom_level]
+        self._y_scale._a *= 0.5
         self.update()
 
     def add_trace(self, trace):
@@ -68,10 +101,10 @@ class GraphWidget(MouseSelectableWidget):
         self.update()
 
     def value_to_pixel(self, value):
-        zero_pixel = self._div_size * (self._num_vertical_divs // 2)
-        pixel_per_value = -self._div_size / self._unit_per_div
-        pixel = zero_pixel + pixel_per_value * value
-        return pixel
+        return self._y_scale.forward(value)
+    
+    def pixel_to_value(self, pixel):
+        return self._y_scale.backward(pixel)
 
     def paintEvent(self, event):
         """ And so the journey begins. The drawing of a plot...
@@ -133,24 +166,73 @@ class GraphWidget(MouseSelectableWidget):
             # so that we do not draw millions of points.
             # print(trace)
             points = trace.trace.samples
-            pen = QtGui.QPen(trace.color)
-            pen.setWidth(2)
-            painter.setPen(pen)
+            if len(points) < 10000:
+                pen = QtGui.QPen(trace.color)
+                pen.setWidth(2)
+                painter.setPen(pen)
 
-            # Create Qt points at pixel locations:
-            qpoints = [
-                QtCore.QPoint(self.timestamp_to_pixel(p.timestamp), self.value_to_pixel(p.value))
-                for p in points
-            ]
+                # Create Qt points at pixel locations:
+                qpoints = [
+                    QtCore.QPoint(self.timestamp_to_pixel(p.timestamp), self.value_to_pixel(p.value))
+                    for p in points
+                ]
 
-            painter.drawPolyline(QtGui.QPolygon(qpoints))
+                painter.drawPolyline(QtGui.QPolygon(qpoints))
+            else:
+                pass
+                # raise NotImplementedError("Data gathering not implemented yet..")
 
     def get_y_ticks(self, y_top, y_bottom):
         """ Get a series of y,value pairs. """
+        assert y_bottom > y_top
+        y_space = y_bottom - y_top
+        assert y_space > 0
+
+        min_tick_distance = 50
+        # nr_ticks = int(y_space / min_tick_distance)
+        # resolution = 
+
+        def get_scale():
+            def pixels_to_range(pixels):
+                t1 = self.pixel_to_value(0)
+                t0 = self.pixel_to_value(pixels)
+                assert t1 > t0
+                return t1 - t0
+            min_range = pixels_to_range(min_tick_distance)
+            # print(min_range)
+            for scale_exp in range(-30, 50):
+                scale_base = 10 ** scale_exp
+                for v in [1, 2, 5]:
+                    scale = scale_base * v
+                    if min_range < scale:
+                        return scale
+
+        scale = get_scale()
+        # print(scale)
+
+        y0_value = self.pixel_to_value(y_bottom)
+        y1_value = self.pixel_to_value(y_top)
+
+        def round_down(value, multiple):
+            return value - value % multiple
+
+        y0_value = round_down(y0_value, scale)
+
         ticks = []
-        for i in range(self._num_vertical_divs + 1):
-            y = i * self._div_size
-            text = str(((self._num_vertical_divs // 2) - i) * self._unit_per_div)
+        y_value = y0_value
+        while y_value < y1_value:
+            # y = i * self._div_size
+
+            y = self.value_to_pixel(y_value)
+            text = str(y_value)
+
+            y_value += scale
+
+            if y < y_top:
+                continue
+            elif y > y_bottom:
+                continue
+
             ticks.append((y, text))
         return ticks
 
@@ -176,10 +258,6 @@ class GraphWidget(MouseSelectableWidget):
         painter.setPen(pen)
 
         for y, text in y_ticks:
-            if y < y_top:
-                continue
-            elif y > y_bottom:
-                continue
             painter.drawLine(x_left - self._tick_length, y, x_left, y)
             text_rect = font_metrics.boundingRect(text)
             dy = text_rect.y() + (text_rect.height() // 2)

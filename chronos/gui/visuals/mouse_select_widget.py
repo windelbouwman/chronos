@@ -2,6 +2,7 @@ import time
 import math
 from ..qt_wrapper import QtWidgets, QtGui, QtCore, Qt
 from ...data import TimeSpan, Duration
+from ..zoom_agent import MouseMode
 
 
 class MouseSelectableWidget(QtWidgets.QWidget):
@@ -108,21 +109,20 @@ class MouseSelectableWidget(QtWidgets.QWidget):
 
         return timespan, scale, ticks
 
-    def enterEvent(self, event):
-        super().enterEvent(event)
-
     def leaveEvent(self, event):
         super().leaveEvent(event)
         self._zoom_agent.hide_cursor()
 
     def mousePressEvent(self, event):
         super().mousePressEvent(event)
-        self._cursor_x2 = event.x()
-        self.update()
+        if self._zoom_agent.mouse_mode == MouseMode.ZOOM_HORIZONTAL:
+            self._cursor_x2 = event.x()
+            self.update()
 
     def mouseReleaseEvent(self, event):
         super().mouseReleaseEvent(event)
-        self.emit_zoom(event.x())
+        if self._zoom_agent.mouse_mode == MouseMode.ZOOM_HORIZONTAL:
+            self.emit_zoom(event.x())
         self._cursor_x2 = None
         self._zoom_agent.clear_selection()
 
@@ -156,7 +156,7 @@ class MouseSelectableWidget(QtWidgets.QWidget):
         timestamp = self.pixel_to_timestamp(x)
         self._zoom_agent.set_cursor(timestamp)
         # If we are pressed, emit selection:
-        if self._cursor_x2 is not None:
+        if self._cursor_x2 is not None and self._zoom_agent.mouse_mode == MouseMode.ZOOM_HORIZONTAL:
             x1 = min(x, self._cursor_x2)
             x2 = max(x, self._cursor_x2)
             timespan = TimeSpan(

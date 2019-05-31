@@ -4,6 +4,8 @@ from .visuals import TimeAxisWidget, SignalTraceVisualizer, LogTraceVisualizer
 
 class Fubar(QtWidgets.QWidget):
     """ Overview widget with coupled time axis.
+
+    This is a sort of MDI area.
     """
     def __init__(self, zoom_agent, database):
         super().__init__()
@@ -45,7 +47,7 @@ class Fubar(QtWidgets.QWidget):
             ("Add log visualizer", LogTraceVisualizer)
         ]
         for name, typ in visualizer_types:
-            self.make_add_visualizer_handler(add_visual_menu, name, typ)
+            self._make_add_visualizer_handler(add_visual_menu, name, typ)
         add_visual_button.setMenu(add_visual_menu)
 
         l3.addWidget(add_visual_button)
@@ -56,7 +58,7 @@ class Fubar(QtWidgets.QWidget):
         # Important: must be after setting layout on inner:
         self._scroll.setWidget(self._inner)
 
-        self.fill_demo_data()
+        # self.fill_demo_data()
 
         self.setToolTip("Add visualizers first, then drag in signals into the plots from the left.")
 
@@ -64,7 +66,7 @@ class Fubar(QtWidgets.QWidget):
         self._trace_layout.addWidget(trace)
         self._traces.append(trace)
 
-    def make_add_visualizer_handler(self, menu, name, visual_cls):
+    def _make_add_visualizer_handler(self, menu, name, visual_cls):
         def handler():
             trace1 = visual_cls(self._zoom_agent, self._database)
             self.add_trace(trace1)

@@ -4,6 +4,7 @@ from ..data import Trace
 from ..data_plugins import DemoDataSource
 from ..data_plugins import LinuxDataSource
 from ..data_plugins import PyLoggerSource
+from ..data_plugins import WebReceiver
 
 
 class SignalSourceWidget(QtWidgets.QWidget):
@@ -41,6 +42,7 @@ class SignalSourceWidget(QtWidgets.QWidget):
             ("Demo", DemoDataSource),
             ("Linux", LinuxDataSource),
             ("Python logger", PyLoggerSource),
+            ("Web receiver", WebReceiver),
         ]
         for name, cls in source_types:
             self.create_add_source_menu(menu, name, cls)

@@ -6,8 +6,13 @@ Also the current cursor position.
 import logging
 from .qt_wrapper import QtCore
 
-from ..data import TimeStamp, TimeSpan
+from ..data import TimeStamp, TimeSpan, Duration
 from .transform import TimeTransform
+
+
+class MouseMode:
+    ZOOM_HORIZONTAL = 1
+    PANNING = 3
 
 
 class ZoomAgent(QtCore.QObject):
@@ -21,6 +26,7 @@ class ZoomAgent(QtCore.QObject):
 
     def __init__(self):
         super().__init__()
+        self.mouse_mode = MouseMode.ZOOM_HORIZONTAL
         # Linear zoom: y=a*x+b
         # Assume 400 pixels of screen?
         self._width = 400
@@ -28,6 +34,29 @@ class ZoomAgent(QtCore.QObject):
         # The current timespan:
         # self._timespan = TimeSpan(begin, end)
         self._transform = TimeTransform()
+
+        self._timer = QtCore.QTimer()
+        self._timer.timeout.connect(self._on_timeout)
+        self._timer.setInterval(70)
+        self._follow_duration = None
+
+    def _on_timeout(self):
+        assert self._follow_duration
+        t2 = TimeStamp.now() + Duration.from_seconds(2)
+        t1 = t2 - self._follow_duration - Duration.from_seconds(4)
+        timespan = TimeSpan(t1, t2)
+        self._inner_zoom_to(timespan)
+
+    def start_to_follow(self, duration):
+        """ Start to track a certain last x time. """
+        self._follow_duration = duration
+        if not self._timer.isActive():
+            self._timer.start()
+    
+    def stop_follow(self):
+        """ Stop scrolling the time axis. """
+        if self._timer.isActive():
+            self._timer.stop()
 
     def pixel_to_timestamp(self, value):
         return self._transform.inverse(value)
@@ -46,6 +75,7 @@ class ZoomAgent(QtCore.QObject):
             self.pixel_to_timestamp(0), self.pixel_to_timestamp(self._width)
         )
 
+    # Manual zoom commands:
     def zoom_out(self):
         self.logger.info("Zoom out!")
         timespan = self.get_current_timespan()
@@ -80,9 +110,14 @@ class ZoomAgent(QtCore.QObject):
 
     def zoom_to(self, timespan):
         """ Zoom to the given timespan. """
+        self.stop_follow()
+        self.logger.info("Zoom to %s", timespan)
+        self._inner_zoom_to(timespan)
+    
+    def _inner_zoom_to(self, timespan):
+        """ This is a non-manual zoom, used by the tracking timer. """
         # Calculate new factor and offset values!
-        current_timespan = self.get_current_timespan()
-        self.logger.info("Zoom from %s to %s", current_timespan, timespan)
+        # current_timespan = self.get_current_timespan()
 
         self._transform = TimeTransform.from_points((0, self._width), timespan)
 

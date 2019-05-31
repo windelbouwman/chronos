@@ -61,8 +61,9 @@ class DemoDataSource(DataSource):
     
     def _run_func(self):
         while self._running:
-            time.sleep(0.1)
-            self._x += 1
+            dt = 0.1
+            time.sleep(dt)
+            self._x += dt
             # print('running!')
             ts = TimeStamp(self._x)
             point = SignalRecord(ts, math.sin(self._x * 0.2) * 80 + 40)
@@ -71,9 +72,9 @@ class DemoDataSource(DataSource):
             self._trace3.add(point)
             point = SignalRecord(ts, self._x % 50)
             self._trace4.add(point)
-            if self._x % 37 == 0:
-                sample = LogRecord(ts, 0, 'x divisable by 37!!')
-                self._log_trace.add(sample)
+            # if self._x % 37 == 0:
+            sample = LogRecord(ts, 0, 'x divisable by 37!!')
+            self._log_trace.add(sample)
 
     def stop(self):
         self._running = False
