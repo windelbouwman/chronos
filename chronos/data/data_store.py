@@ -34,8 +34,8 @@ class DataStore:
         ends = []
         for tree in self.all_trees():
             if isinstance(tree, Trace) and tree.has_samples:
-                starts.append(tree.samples[0].timestamp)
-                ends.append(tree.samples[-1].timestamp)
+                starts.append(tree.samples.first_sample().timestamp)
+                ends.append(tree.samples.last_sample().timestamp)
 
         if not starts:
             now = TimeStamp.now()

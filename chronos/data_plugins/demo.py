@@ -47,6 +47,9 @@ class DemoDataSource(DataSource):
         self._log_trace = LogTrace('logs')
         self.data_source.add_item(self._log_trace)
 
+        self._speed_trace = SignalTrace('high speed')
+        self.data_source.add_item(self._speed_trace)
+
         self.start()
 
     @property
@@ -75,6 +78,19 @@ class DemoDataSource(DataSource):
             # if self._x % 37 == 0:
             sample = LogRecord(ts, 0, 'x divisable by 37!!')
             self._log_trace.add(sample)
+
+            # High speed 1 kHz cosine of 42 Hz
+            t_series = [
+                self._x - dt + z * (dt / 100)
+                for z in range(100)
+            ]
+            f = 42.0
+            two_pi = 2 * math.pi
+            points = [
+                SignalRecord(TimeStamp(t), math.cos(t * two_pi * f) * 50)
+                for t in t_series
+            ]
+            self._speed_trace.add(points)
 
     def stop(self):
         self._running = False

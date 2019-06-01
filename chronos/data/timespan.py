@@ -1,5 +1,16 @@
+
+from .timestamp import TimeStamp
+
+
 class TimeSpan:
+    """ A timespan is a period of time with fixed start and end dates. """
     def __init__(self, begin, end):
+        if not isinstance(begin, TimeStamp):
+            raise ValueError('begin must be TimeStamp')
+
+        if not isinstance(end, TimeStamp):
+            raise ValueError('end must be TimeStamp')
+
         if begin > end:
             raise ValueError("Timespan begin must be before end.")
         self.begin = begin

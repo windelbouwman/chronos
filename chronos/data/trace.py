@@ -3,6 +3,8 @@
 """
 
 import abc
+from .event import Event
+from .timeseries import TimeSeries
 
 
 class TreeItem(metaclass=abc.ABCMeta):
@@ -65,29 +67,13 @@ class TraceGroup(TreeItem):
         return 'TraceGroup'
 
 
-class Event:
-    """ Simple event type which supports multiple handlers. """
-    def __init__(self):
-        self._subscribers = []
-    
-    def __call__(self):
-        for s in self._subscribers:
-            s()
-    
-    def subscribe(self, handler):
-        self._subscribers.append(handler)
-    
-    def unsubscribe(self, handler):
-        self._subscribers.remove(handler)
-
-
 class Trace(TreeItem):
     """ A single trace source. """
     def __init__(self, name):
         super().__init__()
         self.name = name
         self._type = "value"  # or log message / function call enter?
-        self.samples = []
+        self.samples = TimeSeries()
         self.data_changed = Event()
     
     @property
@@ -99,12 +85,21 @@ class Trace(TreeItem):
         return len(self.samples) > 0
 
     def add(self, sample):
+        # TODO: do aggregation!
         if isinstance(sample, list):
-            self.samples.extend(sample)
+            for s in sample:
+                self._inner_add(s)
         else:
-            self.samples.append(sample)
+            self._inner_add(sample)
 
         self.data_changed()
+
+    def _inner_add(self, sample):
+        self.samples.append(sample)
+
+    def get_samples(self, timespan):
+        """ Get samples which are within the given timespan. """
+        return self.samples.get_samples(timespan)
 
     def find_nearest_sample(self, timestamp):
         """ Find sample which is nearest to the given timestamp. """
@@ -154,8 +149,6 @@ class LogTrace(Trace):
 
 class FunctionCallTrace(Trace):
     pass
-
-
 
 
 class VideoTrace(Trace):

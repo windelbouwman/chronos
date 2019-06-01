@@ -42,8 +42,9 @@ class ZoomAgent(QtCore.QObject):
 
     def _on_timeout(self):
         assert self._follow_duration
-        t2 = TimeStamp.now() + Duration.from_seconds(2)
-        t1 = t2 - self._follow_duration - Duration.from_seconds(4)
+        now = TimeStamp.now()
+        t2 = now + Duration.from_seconds(1)
+        t1 = now - self._follow_duration - Duration.from_seconds(1)
         timespan = TimeSpan(t1, t2)
         self._inner_zoom_to(timespan)
 

@@ -89,7 +89,7 @@ class DataSourceModel(QtCore.QAbstractItemModel):
                 value = tree_item.name
             elif column == 1:  # last value.
                 if isinstance(tree_item, Trace) and tree_item.has_samples:
-                    value = str(tree_item.samples[-1])
+                    value = str(tree_item.samples.last_sample())
                 else:
                     value = ''
             elif column == 2:  # num samples
@@ -101,12 +101,12 @@ class DataSourceModel(QtCore.QAbstractItemModel):
             #    value = tree_item.type_name()
             elif column == 3:  # first time
                 if isinstance(tree_item, Trace) and tree_item.has_samples:
-                    value = str(tree_item.samples[0].timestamp)
+                    value = str(tree_item.samples.first_sample().timestamp)
                 else:
                     value = ''
             elif column == 4:  # end time
                 if isinstance(tree_item, Trace) and tree_item.has_samples:
-                    value = str(tree_item.samples[-1].timestamp)
+                    value = str(tree_item.samples.last_sample().timestamp)
                 else:
                     value = ''
             else:

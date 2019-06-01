@@ -148,7 +148,7 @@ class GraphWidget(MouseSelectableWidget):
         self.draw_grid(painter, x_ticks, y_ticks, x_left, y_top, x_right, y_bottom)
         self.draw_signals(painter)
         self.draw_cursor(painter, event.rect())
-        self.draw_current_value(painter)
+        # self.draw_current_value(painter)
 
     def draw_square(self, painter, x_left, y_top, x_right, y_bottom):
         painter.setPen(Qt.black)
@@ -165,8 +165,9 @@ class GraphWidget(MouseSelectableWidget):
             # samples in view, and also resample the samples
             # so that we do not draw millions of points.
             # print(trace)
-            points = trace.trace.samples
-            if len(points) < 10000:
+            timespan = self._zoom_agent.get_current_timespan()
+            points = trace.trace.get_samples(timespan)
+            if len(points) < 1000000:
                 pen = QtGui.QPen(trace.color)
                 pen.setWidth(2)
                 painter.setPen(pen)

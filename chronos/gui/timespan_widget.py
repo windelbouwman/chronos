@@ -14,6 +14,9 @@ logger = logging.getLogger('timespan_selection')
 
 RANGES = [
     # TODO: use trigger for this: last 30 nanoseconds
+    ("last 5 seconds", Duration.from_seconds(5)),
+    ("last 10 seconds", Duration.from_seconds(10)),
+    ("last 15 seconds", Duration.from_seconds(15)),
     ("last 30 seconds", Duration.from_seconds(30)),
     ("last minute", Duration.from_minutes(1)),
     ("last 5 minutes", Duration.from_minutes(5)),
