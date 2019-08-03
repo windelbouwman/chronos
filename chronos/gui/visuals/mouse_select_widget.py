@@ -44,11 +44,11 @@ class MouseSelectableWidget(QtWidgets.QWidget):
         timespan, scale, major_ticks = self.calc_ticks()
 
         if scale.attos < 60:  # Below 1 minute step size
-            fmt = '%H:%M:%S'
+            fmt = "%H:%M:%S"
         elif scale.attos < 3600:  # Below 1 hour step size
-            fmt = '%H:%M'
+            fmt = "%H:%M"
         else:  # Above 1 hour steps:
-            fmt = '%Y-%m-%d %H:%M'
+            fmt = "%Y-%m-%d %H:%M"
 
         def sensible_time_str(timestamp):
             """ Convert ticks into pixel positions and text labels """
@@ -56,8 +56,7 @@ class MouseSelectableWidget(QtWidgets.QWidget):
             return time.strftime(fmt, t2)
 
         x_ticks = [
-            (self.timestamp_to_pixel(t), sensible_time_str(t))
-            for t in major_ticks
+            (self.timestamp_to_pixel(t), sensible_time_str(t)) for t in major_ticks
         ]
         return x_ticks
 
@@ -65,8 +64,7 @@ class MouseSelectableWidget(QtWidgets.QWidget):
         """ Calculate major ticks.
         """
         timespan = TimeSpan(
-            self.pixel_to_timestamp(0),
-            self.pixel_to_timestamp(self._zoom_agent._width),
+            self.pixel_to_timestamp(0), self.pixel_to_timestamp(self._zoom_agent._width)
         )
 
         tick_space = 80  # Minimum amount of pixels between tickzz
@@ -156,7 +154,10 @@ class MouseSelectableWidget(QtWidgets.QWidget):
         timestamp = self.pixel_to_timestamp(x)
         self._zoom_agent.set_cursor(timestamp)
         # If we are pressed, emit selection:
-        if self._cursor_x2 is not None and self._zoom_agent.mouse_mode == MouseMode.ZOOM_HORIZONTAL:
+        if (
+            self._cursor_x2 is not None
+            and self._zoom_agent.mouse_mode == MouseMode.ZOOM_HORIZONTAL
+        ):
             x1 = min(x, self._cursor_x2)
             x2 = max(x, self._cursor_x2)
             timespan = TimeSpan(

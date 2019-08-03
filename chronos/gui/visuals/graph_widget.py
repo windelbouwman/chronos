@@ -74,12 +74,12 @@ class GraphWidget(MouseSelectableWidget):
             self.update()
 
     def zoom_fit(self):
-        print('FIT!')
+        print("FIT!")
 
     def zoom_in(self):
         self._y_scale._a *= 2.0
         self.update()
-    
+
     def zoom_out(self):
         self._y_scale._a *= 0.5
         self.update()
@@ -90,7 +90,7 @@ class GraphWidget(MouseSelectableWidget):
         self._traces.append(trace)
         trace.trace.data_changed.subscribe(self.on_data_changed)
         self.update()
-    
+
     def remove_trace(self, trace):
         assert isinstance(trace.trace, Trace)
         self._traces.remove(trace)
@@ -102,7 +102,7 @@ class GraphWidget(MouseSelectableWidget):
 
     def value_to_pixel(self, value):
         return self._y_scale.forward(value)
-    
+
     def pixel_to_value(self, pixel):
         return self._y_scale.backward(pixel)
 
@@ -125,11 +125,20 @@ class GraphWidget(MouseSelectableWidget):
         text_height = max(font_metrics.boundingRect(t[1]).height() for t in x_ticks)
 
         y_top = self._padding
-        y_bottom = self.height() - 1 - self._padding - text_height - self._padding - self._tick_length
+        y_bottom = (
+            self.height()
+            - 1
+            - self._padding
+            - text_height
+            - self._padding
+            - self._tick_length
+        )
 
         y_ticks = self.get_y_ticks(y_top, y_bottom)
 
-        max_y_label_width = max(font_metrics.boundingRect(t[1]).width() for t in y_ticks)
+        max_y_label_width = max(
+            font_metrics.boundingRect(t[1]).width() for t in y_ticks
+        )
         x_left = self._padding + max_y_label_width + self._padding + self._tick_length
         x_right = self.width() - 1 - self._padding
 
@@ -167,14 +176,17 @@ class GraphWidget(MouseSelectableWidget):
             # print(trace)
             timespan = self._zoom_agent.get_current_timespan()
             points = trace.trace.get_samples(timespan)
+            pen = QtGui.QPen(trace.color)
+            pen.setWidth(2)
+            painter.setPen(pen)
             if len(points) < 1000000:
-                pen = QtGui.QPen(trace.color)
-                pen.setWidth(2)
-                painter.setPen(pen)
 
                 # Create Qt points at pixel locations:
                 qpoints = [
-                    QtCore.QPoint(self.timestamp_to_pixel(p.timestamp), self.value_to_pixel(p.value))
+                    QtCore.QPoint(
+                        self.timestamp_to_pixel(p.timestamp),
+                        self.value_to_pixel(p.value),
+                    )
                     for p in points
                 ]
 
@@ -182,6 +194,34 @@ class GraphWidget(MouseSelectableWidget):
             else:
                 pass
                 # raise NotImplementedError("Data gathering not implemented yet..")
+                # Create polygon from min and max
+                if False:
+                    # TODO: use average as line?
+                    samples = []  # tuples of ts, min, max
+
+                    # Use axis to come to pixels:
+                    q_points = [
+                        (
+                            self.timestamp_to_pixel(p[0]),  # timestamp
+                            self.value_to_pixel(p[1]),  # min
+                            self.value_to_pixel(p[2]),  # max
+                        )
+                        for p in samples
+                    ]
+
+                    # Create line segments:
+                    max_points = [
+                        QtCore.QPoint(p[0], p[2]) for p in q_points
+                    ]  # Top from left to right
+                    min_points = [
+                        QtCore.QPoint(p[0], p[1]) for p in reversed(q_points)
+                    ]  # bottom from right to left
+                    min_max_points = min_points + max_points
+                    avg_points = [
+                        QtCore.QPoint(p[0], p[2]) for p in q_points
+                    ]  # Top from left to right
+                    painter.drawPolygon(QtGui.QPolygon(min_max_points))
+                    painter.drawPolyline(QtGui.QPolygon(avg_points))  # average line.
 
     def get_y_ticks(self, y_top, y_bottom):
         """ Get a series of y,value pairs. """
@@ -191,7 +231,7 @@ class GraphWidget(MouseSelectableWidget):
 
         min_tick_distance = 50
         # nr_ticks = int(y_space / min_tick_distance)
-        # resolution = 
+        # resolution =
 
         def get_scale():
             def pixels_to_range(pixels):
@@ -199,6 +239,7 @@ class GraphWidget(MouseSelectableWidget):
                 t0 = self.pixel_to_value(pixels)
                 assert t1 > t0
                 return t1 - t0
+
             min_range = pixels_to_range(min_tick_distance)
             # print(min_range)
             for scale_exp in range(-30, 50):
@@ -283,7 +324,7 @@ class GraphWidget(MouseSelectableWidget):
         pen = QtGui.QPen(Qt.black)
         pen.setWidth(2)
         painter.setPen(pen)
-        
+
         # for x in range(x0, x2, spacing * 5):
         for x, _ in x_ticks:
             painter.drawLine(x, y_top, x, y_bottom)
@@ -309,7 +350,7 @@ class GraphWidget(MouseSelectableWidget):
 
                     # Draw label:
                     cursor_value = nearest_sample.value
-                    text = '{}={}'.format(trace.trace.name, cursor_value)
+                    text = "{}={}".format(trace.trace.name, cursor_value)
                     painter.drawText(x2 + 10, y2 + 10, text)
 
 

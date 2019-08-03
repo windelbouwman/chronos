@@ -53,7 +53,7 @@ class ZoomAgent(QtCore.QObject):
         self._follow_duration = duration
         if not self._timer.isActive():
             self._timer.start()
-    
+
     def stop_follow(self):
         """ Stop scrolling the time axis. """
         if self._timer.isActive():
@@ -114,7 +114,7 @@ class ZoomAgent(QtCore.QObject):
         self.stop_follow()
         self.logger.info("Zoom to %s", timespan)
         self._inner_zoom_to(timespan)
-    
+
     def _inner_zoom_to(self, timespan):
         """ This is a non-manual zoom, used by the tracking timer. """
         # Calculate new factor and offset values!
@@ -136,10 +136,7 @@ class ZoomAgent(QtCore.QObject):
         left_duration *= percentage
         right_duration *= percentage
 
-        timespan = TimeSpan(
-            timestamp - left_duration,
-            timestamp + right_duration
-        )
+        timespan = TimeSpan(timestamp - left_duration, timestamp + right_duration)
         self.zoom_to(timespan)
 
     def set_selection(self, timespan):

@@ -7,6 +7,7 @@ class Fubar(QtWidgets.QWidget):
 
     This is a sort of MDI area.
     """
+
     def __init__(self, zoom_agent, database):
         super().__init__()
         self._zoom_agent = zoom_agent
@@ -31,7 +32,7 @@ class Fubar(QtWidgets.QWidget):
 
         # Inner widget:
         self._inner = QtWidgets.QWidget()
-        
+
         l3 = QtWidgets.QVBoxLayout()
         self._trace_layout = QtWidgets.QVBoxLayout()
         l3.addLayout(self._trace_layout)
@@ -44,7 +45,7 @@ class Fubar(QtWidgets.QWidget):
         # TODO: where to retrieve this list from?
         visualizer_types = [
             ("Add trace visualizer", SignalTraceVisualizer),
-            ("Add log visualizer", LogTraceVisualizer)
+            ("Add log visualizer", LogTraceVisualizer),
         ]
         for name, typ in visualizer_types:
             self._make_add_visualizer_handler(add_visual_menu, name, typ)
@@ -60,7 +61,9 @@ class Fubar(QtWidgets.QWidget):
 
         # self.fill_demo_data()
 
-        self.setToolTip("Add visualizers first, then drag in signals into the plots from the left.")
+        self.setToolTip(
+            "Add visualizers first, then drag in signals into the plots from the left."
+        )
 
     def add_trace(self, trace):
         self._trace_layout.addWidget(trace)
@@ -70,9 +73,10 @@ class Fubar(QtWidgets.QWidget):
         def handler():
             trace1 = visual_cls(self._zoom_agent, self._database)
             self.add_trace(trace1)
+
         add_trace_action = menu.addAction(name)
         add_trace_action.triggered.connect(handler)
-        
+
     def fill_demo_data(self):
         # Fill demo data:
         trace1 = SignalTraceVisualizer(self._zoom_agent, self._database)

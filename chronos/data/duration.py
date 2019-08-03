@@ -30,7 +30,7 @@ class Duration:
     def __add__(self, other):
         assert isinstance(other, Duration)
         return Duration(self.attos + other.attos)
-    
+
     def __mul__(self, other):
         if isinstance(other, (int, float)):
             return Duration(self.attos * other)

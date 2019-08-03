@@ -1,11 +1,10 @@
-
 from .trace import SignalTrace
 from .timestamp import TimeStamp
 from . import SignalRecord
 
 
 def test_find_sample():
-    trace = SignalTrace('a')
+    trace = SignalTrace("a")
     print(trace)
     ts = TimeStamp(4)
     nearest = trace.find_nearest_sample(ts)

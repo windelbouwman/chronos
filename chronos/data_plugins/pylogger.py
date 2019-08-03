@@ -5,11 +5,12 @@ from ..data import LogTrace, LogRecord, TraceDataSource, TimeStamp, TraceGroup
 
 
 class PyLoggerPlugin:
-    name = 'py_logger'
+    name = "py_logger"
 
 
 class InnerLogHandler(logging.Handler):
     """ Log handler which re-routes the message to the logger source. """
+
     def __init__(self, logger_source):
         super().__init__()
         self._logger_source = logger_source
@@ -20,14 +21,14 @@ class InnerLogHandler(logging.Handler):
 
 class PyLoggerSource:
     def __init__(self):
-        self.data_source = TraceDataSource('py_logger')
+        self.data_source = TraceDataSource("py_logger")
 
-        self._log_trace = LogTrace('messages')
+        self._log_trace = LogTrace("messages")
         self.data_source.add_item(self._log_trace)
         self._handler = InnerLogHandler(self)
         logger = logging.getLogger()
         logger.addHandler(self._handler)
-    
+
     def on_record(self, record):
         ts = TimeStamp.now()
         record = LogRecord(ts, record.levelname, record.message)

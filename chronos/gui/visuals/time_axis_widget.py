@@ -28,7 +28,7 @@ class TimeAxisWidget(MouseSelectableWidget):
         if self._cursor is not None:
             painter.setPen(Qt.black)
             x = self.timestamp_to_pixel(self._cursor)
-            text = '{}'.format(self._cursor)
+            text = "{}".format(self._cursor)
             y = 25
             painter.drawText(x + 4, y, text)
 
@@ -46,7 +46,7 @@ class TimeAxisWidget(MouseSelectableWidget):
         for x, label_text in ticks:
             painter.drawLine(x, y1, x, y2)
             label_rect = fontMetrics.boundingRect(label_text)
-            painter.drawText(x - label_rect.width()/2, y1 - 5, label_text)
+            painter.drawText(x - label_rect.width() / 2, y1 - 5, label_text)
 
         # TODO: draw correct stuff
         # for tick in range(0, 600, 35):

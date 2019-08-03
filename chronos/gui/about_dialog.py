@@ -1,8 +1,6 @@
-
 from PyQt5 import uic
 from .qt_wrapper import QtWidgets, Qt, QtCore
 import logging
-
 
 
 class AboutDialog(QtWidgets.QDialog):

@@ -47,10 +47,10 @@ class TraceDataSource(TreeItem):
         self.name = name
 
     def get_uri(self):
-        return 'tracedatasource://{}'.format(id(self))
+        return "tracedatasource://{}".format(id(self))
 
     def type_name(self):
-        return 'DataSource'
+        return "DataSource"
 
 
 class TraceGroup(TreeItem):
@@ -61,21 +61,22 @@ class TraceGroup(TreeItem):
         self.name = name
 
     def get_uri(self):
-        return 'tracegroup://{}'.format(id(self))
+        return "tracegroup://{}".format(id(self))
 
     def type_name(self):
-        return 'TraceGroup'
+        return "TraceGroup"
 
 
 class Trace(TreeItem):
     """ A single trace source. """
+
     def __init__(self, name):
         super().__init__()
         self.name = name
         self._type = "value"  # or log message / function call enter?
         self.samples = TimeSeries()
         self.data_changed = Event()
-    
+
     @property
     def size(self):
         return len(self.samples) * 8 + 13
@@ -97,9 +98,9 @@ class Trace(TreeItem):
     def _inner_add(self, sample):
         self.samples.append(sample)
 
-    def get_samples(self, timespan):
+    def get_samples(self, timespan, max_samples=1000):
         """ Get samples which are within the given timespan. """
-        return self.samples.get_samples(timespan)
+        return self.samples.get_samples(timespan, max_samples=max_samples)
 
     def find_nearest_sample(self, timestamp):
         """ Find sample which is nearest to the given timestamp. """
@@ -131,20 +132,22 @@ class Trace(TreeItem):
 
 class SignalTrace(Trace):
     """ A signal trace of scalar values over time. """
+
     def get_uri(self):
-        return 'signaltrace://{}'.format(id(self))
+        return "signaltrace://{}".format(id(self))
 
     def type_name(self):
-        return 'SignalTrace'
+        return "SignalTrace"
 
 
 class LogTrace(Trace):
     """ A trace with log events. """
+
     def get_uri(self):
-        return 'logtrace://{}'.format(id(self))
+        return "logtrace://{}".format(id(self))
 
     def type_name(self):
-        return 'LogTrace'
+        return "LogTrace"
 
 
 class FunctionCallTrace(Trace):
@@ -157,4 +160,5 @@ class VideoTrace(Trace):
 
 class AudioTrace(Trace):
     """ An audio recording. """
+
     pass

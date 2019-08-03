@@ -9,7 +9,7 @@ from .qt_wrapper import QtWidgets, QtCore
 
 from ..data import TimeSpan, TimeStamp, Duration
 
-logger = logging.getLogger('timespan_selection')
+logger = logging.getLogger("timespan_selection")
 
 
 RANGES = [
@@ -37,7 +37,7 @@ class TimeSpanToolButton(QtWidgets.QToolButton):
         self._zoom_agent = zoom_agent
         dialog = False
         if dialog:
-            self.zoomToAction = QtWidgets.QAction('Zoom to ...')
+            self.zoomToAction = QtWidgets.QAction("Zoom to ...")
             self.setDefaultAction(self.zoomToAction)
             self.zoomToAction.triggered.connect(self._show_zoom_to_dialog)
         else:
@@ -52,17 +52,18 @@ class TimeSpanToolButton(QtWidgets.QToolButton):
     def _show_zoom_to_dialog(self):
         dialog = TimeSpanDialog(self)
         dialog.exec()
-    
+
     def _make_range_handler(self, menu, name, duration):
         def handler():
             self.update_function(name, duration)
+
         zoom_action = menu.addAction(name)
         zoom_action.triggered.connect(handler)
 
     def update_function(self, name, duration):
-        logger.debug('Zooming to %s', name)
+        logger.debug("Zooming to %s", name)
         self._zoom_agent.start_to_follow(duration)
-  
+
 
 class TimeSpanQuick(QtWidgets.QWidget):
     """ Quick tab for often used time spans """
@@ -82,7 +83,7 @@ class TimeSpanQuick(QtWidgets.QWidget):
         button.setText(name)
         button.clicked.connect(lambda: self._update_function(name))
         return button
-    
+
 
 class TimeSpanDialog(QtWidgets.QDialog):
     def __init__(self, parent):

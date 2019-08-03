@@ -46,8 +46,9 @@ class LogRecordsWidget(MouseSelectableWidget):
     def draw_logs(self, painter, rect):
         """ Draw log records in w00t-style cool way. """
         _num_lanes = 5  # Try to print non-overlapping log messages.
+        timespan = self._zoom_agent.get_current_timespan()
         for trace in self._traces:
-            for record in trace.samples:
+            for record in trace.get_samples(timespan):
                 self.draw_record(painter, record)
 
     def draw_record(self, painter, record):

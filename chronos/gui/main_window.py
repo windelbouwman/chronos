@@ -76,15 +76,15 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
         about_dialog.exec()
 
     def add_zoom_buttons(self):
-        self.actionZoomFit.setIcon(get_icon('zoom-to-extents'))
+        self.actionZoomFit.setIcon(get_icon("zoom-to-extents"))
         self.actionZoomFit.triggered.connect(self._context.zoom_fit)
-        self.actionZoomOut.setIcon(get_icon('zoom-out'))
+        self.actionZoomOut.setIcon(get_icon("zoom-out"))
         self.actionZoomOut.triggered.connect(self._context.zoom_agent.zoom_out)
-        self.actionZoomIn.setIcon(get_icon('zoom-in'))
+        self.actionZoomIn.setIcon(get_icon("zoom-in"))
         self.actionZoomIn.triggered.connect(self._context.zoom_agent.zoom_in)
-        self.actionPanLeft.setIcon(get_icon('back-arrow'))
+        self.actionPanLeft.setIcon(get_icon("back-arrow"))
         self.actionPanLeft.triggered.connect(self._context.zoom_agent.pan_left)
-        self.actionPanRight.setIcon(get_icon('forward-button'))
+        self.actionPanRight.setIcon(get_icon("forward-button"))
         self.actionPanRight.triggered.connect(self._context.zoom_agent.pan_right)
 
         self.zoomToToolButton = TimeSpanToolButton(self._context.zoom_agent)
@@ -98,9 +98,11 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
         zoom_horizontal.setCheckable(True)
         zoom_horizontal.setChecked(True)
         zoom_horizontal.setText("Zoom horizontal")
-        zoom_horizontal.setIcon(get_icon('zoom'))
+        zoom_horizontal.setIcon(get_icon("zoom"))
         self.mainToolBar.addWidget(zoom_horizontal)
-        self._zoom_mode_button_group.addButton(zoom_horizontal, MouseMode.ZOOM_HORIZONTAL)
+        self._zoom_mode_button_group.addButton(
+            zoom_horizontal, MouseMode.ZOOM_HORIZONTAL
+        )
 
         # zoom = QtWidgets.QToolButton()
         # zoom.setCheckable(True)
@@ -111,10 +113,12 @@ class ChronosMainWindow(QtWidgets.QMainWindow):
         pan_horizontal = QtWidgets.QToolButton()
         pan_horizontal.setCheckable(True)
         pan_horizontal.setText("Pan horizontal")
-        pan_horizontal.setIcon(get_icon('move'))
+        pan_horizontal.setIcon(get_icon("move"))
         self.mainToolBar.addWidget(pan_horizontal)
         self._zoom_mode_button_group.addButton(pan_horizontal, MouseMode.PANNING)
-        self._zoom_mode_button_group.buttonClicked[int].connect(self._on_zoom_button_clicked)
+        self._zoom_mode_button_group.buttonClicked[int].connect(
+            self._on_zoom_button_clicked
+        )
 
     def _on_zoom_button_clicked(self, id):
         self._context.zoom_agent.mouse_mode = id

@@ -19,15 +19,15 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
 
     # Start with epic splash screen!
-    pixmap = QtGui.QPixmap('img/splash.png')
+    pixmap = QtGui.QPixmap("img/splash.png")
     splash = QtWidgets.QSplashScreen(pixmap)
     splash.show()
     if False:
-        splash.showMessage("Doing important stuff..", Qt.AlignHCenter, Qt.red);
+        splash.showMessage("Doing important stuff..", Qt.AlignHCenter, Qt.red)
         time.sleep(0.4)
-        splash.showMessage("Loading cool things", Qt.AlignHCenter, Qt.red);
+        splash.showMessage("Loading cool things", Qt.AlignHCenter, Qt.red)
         time.sleep(0.4)
-        splash.showMessage("Starting spiffy tools!", Qt.AlignHCenter, Qt.red);
+        splash.showMessage("Starting spiffy tools!", Qt.AlignHCenter, Qt.red)
         time.sleep(0.4)
 
     w = ChronosMainWindow()

@@ -20,12 +20,12 @@ class TraceVisualizer(QtWidgets.QFrame):
         # Enable drop of traces:
         self.setAcceptDrops(True)
         self._accepted_drop_scheme = accepted_drop_scheme
-        
+
     def dragEnterEvent(self, event):
         mimeData = event.mimeData()
-        if mimeData.hasFormat('application/x-fubar'):
-            data = mimeData.data('application/x-fubar').data()
-            uris = json.loads(data.decode('ascii'))
+        if mimeData.hasFormat("application/x-fubar"):
+            data = mimeData.data("application/x-fubar").data()
+            uris = json.loads(data.decode("ascii"))
             for uri in uris:
                 o = urlparse(uri)
                 if o.scheme == self._accepted_drop_scheme:
@@ -33,17 +33,17 @@ class TraceVisualizer(QtWidgets.QFrame):
 
     def dropEvent(self, event):
         mimeData = event.mimeData()
-        if mimeData.hasFormat('application/x-fubar'):
-            data = mimeData.data('application/x-fubar').data()
-            uris = json.loads(data.decode('ascii'))
+        if mimeData.hasFormat("application/x-fubar"):
+            data = mimeData.data("application/x-fubar").data()
+            uris = json.loads(data.decode("ascii"))
             for uri in uris:
-                print('Dropping', uri)
+                print("Dropping", uri)
                 o = urlparse(uri)
                 # print(o)
                 if o.scheme == self._accepted_drop_scheme:
                     self.handle_drop(o)
                 else:
-                    print(f'Not supported scheme: {o.scheme}')
+                    print(f"Not supported scheme: {o.scheme}")
 
     def handle_drop(self, o):
         raise NotImplementedError()

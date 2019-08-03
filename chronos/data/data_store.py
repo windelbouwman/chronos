@@ -1,5 +1,3 @@
-
-
 from .trace import Trace
 from .timespan import TimeSpan
 from .timestamp import TimeStamp

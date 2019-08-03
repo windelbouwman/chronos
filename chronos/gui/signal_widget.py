@@ -9,6 +9,7 @@ from ..data_plugins import WebReceiver
 
 class SignalSourceWidget(QtWidgets.QWidget):
     """ A widget with data sources. """
+
     def __init__(self, database):
         super().__init__()
         self._database = database
@@ -16,11 +17,11 @@ class SignalSourceWidget(QtWidgets.QWidget):
         self.setLayout(l)
 
         add_data_source = QtWidgets.QToolButton()
-        add_data_source.setText('Add data source...')
+        add_data_source.setText("Add data source...")
         add_data_source.setPopupMode(QtWidgets.QToolButton.InstantPopup)
         l.addWidget(add_data_source)
-        
-        expand_all_button = QtWidgets.QPushButton('Expand all')
+
+        expand_all_button = QtWidgets.QPushButton("Expand all")
         l.addWidget(expand_all_button)
 
         self.signalsTreeView = QtWidgets.QTreeView()
@@ -52,6 +53,7 @@ class SignalSourceWidget(QtWidgets.QWidget):
         def handle():
             self.signal_model._database.sources.append(cls())
             self.signal_model.modelReset.emit()
+
         action = menu.addAction(name)
         action.triggered.connect(handle)
 
@@ -63,14 +65,15 @@ class SignalSourceWidget(QtWidgets.QWidget):
             tree = index.internalPointer()
             if isinstance(tree, Trace):
                 menu = QtWidgets.QMenu()
+
                 def do_plot():
-                    print('Plot!')
+                    print("Plot!")
                     self.bar_charts.add_trace(tree)
 
-                plotAction = QtWidgets.QAction('Plot!')
+                plotAction = QtWidgets.QAction("Plot!")
                 plotAction.triggered.connect(do_plot)
                 menu.addAction(plotAction)
-                propertiesAction = QtWidgets.QAction('Properties')
+                propertiesAction = QtWidgets.QAction("Properties")
                 menu.addAction(propertiesAction)
                 pos2 = self.signalsTreeView.viewport().mapToGlobal(pos)
                 menu.exec(pos2)

@@ -21,9 +21,10 @@ class LinuxDataPlugin(DataPlugin):
 
 class LinuxDataSource(DataPlugin):
     """ Simple data plugin which reads the file /proc/stat """
+
     def __init__(self):
-        self._field_names = ['user', 'nice', 'system', 'idle']
-        self.data_source = TraceDataSource('linux')
+        self._field_names = ["user", "nice", "system", "idle"]
+        self.data_source = TraceDataSource("linux")
         self._trace_map = {}
         self._running = False
 
@@ -55,14 +56,14 @@ class LinuxDataSource(DataPlugin):
     def _sample(self):
         """ perform a one of sample. """
         timestamp = TimeStamp.now()
-        with open('/proc/stat') as f:
+        with open("/proc/stat") as f:
             for line in f:
                 # print(line)
-                if line.startswith('cpu '):
+                if line.startswith("cpu "):
                     # Got cpu!
-                    parts = list(filter(None, line.split(' ')))
+                    parts = list(filter(None, line.split(" ")))
                     # print(parts)
-                    
+
                     # name = parts[0]
 
                     for i, field_name in enumerate(self._field_names, 1):

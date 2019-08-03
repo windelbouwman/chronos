@@ -4,21 +4,29 @@ Ideas from here: https://akumuli.org/
 """
 
 import logging
-logger = logging.getLogger('time-series')
+
+logger = logging.getLogger("time-series")
 
 
 class TimeSeries:
     """ A time series. """
+
     def __init__(self):
         self._root_node = Leaf()
-    
+
     def __len__(self):
         return len(self._root_node)
-    
+
+    def __iter__(self):
+        return iter(self._root_node)
+
     def append(self, sample):
         """ Add a sample to this time series. """
         if self._root_node.is_full:
-            logger.debug('Root is full %s, creating new intermediate as new root', len(self._root_node))
+            logger.debug(
+                "Root is full %s, creating new intermediate as new root",
+                len(self._root_node),
+            )
             print(self._root_node)
             new_root = Intermediate(self._root_node.level + 1)
             new_root.add_chunk(self._root_node)
@@ -52,7 +60,7 @@ class TimeSeries:
 
             if timespan.end < leaf.begin:
                 break
-            
+
             leafs.append(leaf)
         return leafs
 
@@ -67,8 +75,22 @@ class TimeSeries:
         return samples
 
 
+class QueryResult:
+    pass
+
+
+class SamplesResult(QueryResult):
+    def __init__(self, samples):
+        pass
+
+
+class MinMaxResult(QueryResult):
+    pass
+
+
 class Intermediate:
     """ An intermediate level. """
+
     fanout = 13
 
     def __init__(self, level):
@@ -76,7 +98,7 @@ class Intermediate:
         self._sub_chunks = []
 
     def __repr__(self):
-        return 'Intermediate at level {}'.format(self.level)
+        return "Intermediate at level {}".format(self.level)
 
     def __len__(self):
         return sum(len(c) for c in self._sub_chunks)
@@ -124,6 +146,7 @@ class Intermediate:
 class Leaf:
     """ A chunk which actually contains samples.
     """
+
     capacity = 700
 
     def __init__(self):
@@ -161,4 +184,4 @@ class Leaf:
         self.end = sample.timestamp
 
 
-__all__ = ['TimeSeries']
+__all__ = ["TimeSeries"]

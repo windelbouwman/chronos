@@ -10,7 +10,7 @@ from ..data import DataSource
 
 
 class DemoPlugin:
-    name = 'demo'
+    name = "demo"
 
     def create_data_source(self):
         return DemoDataSource()
@@ -18,36 +18,37 @@ class DemoPlugin:
 
 class DemoDataSource(DataSource):
     """ Demo data source. """
+
     def __init__(self):
         self._x = int(TimeStamp.now())
         xs = range(self._x - 300, self._x)
-        self.data_source = TraceDataSource('demo')
+        self.data_source = TraceDataSource("demo")
 
-        group1 = TraceGroup('group1')
+        group1 = TraceGroup("group1")
         self.data_source.add_item(group1)
 
-        self._trace1 = SignalTrace('trace1')
+        self._trace1 = SignalTrace("trace1")
         points1 = [SignalRecord(TimeStamp(x), math.sin(x * 0.03) * 80 + 40) for x in xs]
         self._trace1.add(points1)
         group1.add_item(self._trace1)
 
-        trace2 = SignalTrace('trace2')
+        trace2 = SignalTrace("trace2")
         points2 = [SignalRecord(TimeStamp(x), math.sin(x * 0.6) * 30 + 20) for x in xs]
         trace2.add(points2)
         group1.add_item(trace2)
 
-        self._trace3 = SignalTrace('sine3')
+        self._trace3 = SignalTrace("sine3")
         points3 = [SignalRecord(TimeStamp(x), math.cos(x * 0.6) * 20 + 70) for x in xs]
         self._trace3.add(points3)
         self.data_source.add_item(self._trace3)
 
-        self._trace4 = SignalTrace('ramp1')
+        self._trace4 = SignalTrace("ramp1")
         self.data_source.add_item(self._trace4)
 
-        self._log_trace = LogTrace('logs')
+        self._log_trace = LogTrace("logs")
         self.data_source.add_item(self._log_trace)
 
-        self._speed_trace = SignalTrace('high speed')
+        self._speed_trace = SignalTrace("high speed")
         self.data_source.add_item(self._speed_trace)
 
         self.start()
@@ -61,7 +62,7 @@ class DemoDataSource(DataSource):
         self._running = True
         self._thread = threading.Thread(target=self._run_func)
         self._thread.start()
-    
+
     def _run_func(self):
         while self._running:
             dt = 0.1
@@ -76,18 +77,19 @@ class DemoDataSource(DataSource):
             point = SignalRecord(ts, self._x % 50)
             self._trace4.add(point)
             # if self._x % 37 == 0:
-            sample = LogRecord(ts, 0, 'x divisable by 37!!')
+            sample = LogRecord(ts, 0, "x divisable by 37!!")
             self._log_trace.add(sample)
 
             # High speed 1 kHz cosine of 42 Hz
-            t_series = [
-                self._x - dt + z * (dt / 100)
-                for z in range(100)
-            ]
+            t_series = [self._x - dt + z * (dt / 100) for z in range(100)]
             f = 42.0
+            f2 = 0.1
             two_pi = 2 * math.pi
             points = [
-                SignalRecord(TimeStamp(t), math.cos(t * two_pi * f) * 50)
+                SignalRecord(
+                    TimeStamp(t),
+                    math.cos(t * two_pi * f) * 50 + math.sin(t * two_pi * f2) * 130,
+                )
                 for t in t_series
             ]
             self._speed_trace.add(points)

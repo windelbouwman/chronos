@@ -1,4 +1,3 @@
-
 import itertools
 from ..qt_wrapper import QtWidgets, QtGui, Qt, QtCore
 from .graph_widget import GraphWidget
@@ -11,6 +10,7 @@ class Trace2:
     Contains a reference to the traced signal.
     Contains information about style and coloring.
     """
+
     def __init__(self, trace, color):
         self.color = color
         self.trace = trace
@@ -37,24 +37,20 @@ class SignalTraceVisualizer(TraceVisualizer):
         self._signal_view.setFixedWidth(70)
         self._signal_view.setModel(self._signal_list_model)
         self._signal_view.setContextMenuPolicy(Qt.CustomContextMenu)
-        self._signal_view.customContextMenuRequested.connect(self._on_signal_view_context_menu)
+        self._signal_view.customContextMenuRequested.connect(
+            self._on_signal_view_context_menu
+        )
 
         l2.addWidget(self._signal_view)
-        self._zoom_in = QtWidgets.QPushButton('+')
-        self._zoom_out = QtWidgets.QPushButton('-')
+        self._zoom_in = QtWidgets.QPushButton("+")
+        self._zoom_out = QtWidgets.QPushButton("-")
         l2.addWidget(self._zoom_in)
         l2.addWidget(self._zoom_out)
         l.addLayout(l2)
 
-        self._color_wheel = itertools.cycle([
-            Qt.blue,
-            Qt.green,
-            Qt.red,
-            Qt.cyan,
-            Qt.magenta,
-            Qt.yellow,
-            Qt.darkGray,
-        ])
+        self._color_wheel = itertools.cycle(
+            [Qt.blue, Qt.green, Qt.red, Qt.cyan, Qt.magenta, Qt.yellow, Qt.darkGray]
+        )
 
         # self._frame = QtWidgets.QFrame()
         # self._frame.setLineWidth(2)
@@ -67,27 +63,28 @@ class SignalTraceVisualizer(TraceVisualizer):
 
         self._zoom_in.clicked.connect(self._graph.zoom_in)
         self._zoom_out.clicked.connect(self._graph.zoom_out)
-    
+
     def _on_signal_view_context_menu(self, pos):
         index = self._signal_view.indexAt(pos)
         if index.isValid():
             trace = self._signal_list_model._traces[index.row()]
             menu = QtWidgets.QMenu()
+
             def do_delete():
-                print('Delete!!')
+                print("Delete!!")
                 self._graph.remove_trace(trace)
                 self._signal_list_model.remove_trace(trace)
-            
-            deleteAction = QtWidgets.QAction('Delete')
+
+            deleteAction = QtWidgets.QAction("Delete")
             deleteAction.triggered.connect(do_delete)
             menu.addAction(deleteAction)
 
             def do_properties():
-                print('Properties!')
+                print("Properties!")
                 dialog = PlottedSignalPropertiesDialog(self._signal_view, trace)
                 dialog.exec()
 
-            propertiesAction = QtWidgets.QAction('Properties')
+            propertiesAction = QtWidgets.QAction("Properties")
             propertiesAction.triggered.connect(do_properties)
             menu.addAction(propertiesAction)
 
@@ -110,7 +107,7 @@ class SignalListModel(QtCore.QAbstractListModel):
     def __init__(self):
         super().__init__()
         self._traces = []
-    
+
     def add_trace(self, trace):
         # self.beginInsertRows()
         self._traces.append(trace)
@@ -144,28 +141,28 @@ class PlottedSignalPropertiesDialog(QtWidgets.QDialog):
     def __init__(self, parent, trace):
         super().__init__(parent)
         self.trace = trace
-        self.setWindowTitle('Properties of {}'.format(trace.trace.name))
+        self.setWindowTitle("Properties of {}".format(trace.trace.name))
 
         l1 = QtWidgets.QVBoxLayout()
 
         l = QtWidgets.QGridLayout()
-        label = QtWidgets.QLabel('Name')
+        label = QtWidgets.QLabel("Name")
         l.addWidget(label, 0, 0)
         label = QtWidgets.QLabel(trace.trace.name)
         l.addWidget(label, 0, 1)
-        label = QtWidgets.QLabel('Color')
+        label = QtWidgets.QLabel("Color")
         l.addWidget(label, 1, 0)
-        # icon = 
+        # icon =
         color_button = QtWidgets.QPushButton()
         color_button.clicked.connect(self.on_color_clicked)
         l.addWidget(color_button, 1, 1)
         l1.addLayout(l)
 
-        ok_button = QtWidgets.QPushButton('Ok')
+        ok_button = QtWidgets.QPushButton("Ok")
         l1.addWidget(ok_button)
         ok_button.clicked.connect(self.on_ok)
         self.setLayout(l1)
-    
+
     def on_ok(self):
         self.close()
 

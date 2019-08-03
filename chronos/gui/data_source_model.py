@@ -91,47 +91,47 @@ class DataSourceModel(QtCore.QAbstractItemModel):
                 if isinstance(tree_item, Trace) and tree_item.has_samples:
                     value = str(tree_item.samples.last_sample())
                 else:
-                    value = ''
+                    value = ""
             elif column == 2:  # num samples
                 if isinstance(tree_item, Trace):
                     value = str(len(tree_item.samples))
                 else:
-                    value = ''
+                    value = ""
             # elif column == 3:  # type
             #    value = tree_item.type_name()
             elif column == 3:  # first time
                 if isinstance(tree_item, Trace) and tree_item.has_samples:
                     value = str(tree_item.samples.first_sample().timestamp)
                 else:
-                    value = ''
+                    value = ""
             elif column == 4:  # end time
                 if isinstance(tree_item, Trace) and tree_item.has_samples:
                     value = str(tree_item.samples.last_sample().timestamp)
                 else:
-                    value = ''
+                    value = ""
             else:
                 raise NotImplementedError(str(column))
             return value
         elif role == Qt.DecorationRole:
             if column == 0:
                 if isinstance(tree_item, TraceGroup):
-                    return get_icon('folder')
+                    return get_icon("folder")
                 elif isinstance(tree_item, TraceDataSource):
-                    return get_icon('database')
+                    return get_icon("database")
                 elif isinstance(tree_item, SignalTrace):
-                    return get_icon('graph')
+                    return get_icon("graph")
                 elif isinstance(tree_item, LogTrace):
-                    return get_icon('event-log')
+                    return get_icon("event-log")
 
     def flags(self, index):
         flags = super().flags(index)
         if index.isValid():
             flags |= Qt.ItemIsDragEnabled
         return flags
-    
+
     def mimeTypes(self):
-        return ['application/x-fubar']
-    
+        return ["application/x-fubar"]
+
     def mimeData(self, indexes):
         mimeData = QtCore.QMimeData()
         uris = []
@@ -148,6 +148,6 @@ class DataSourceModel(QtCore.QAbstractItemModel):
             uris.append(tree.get_uri())
         print(uris)
         json_data = json.dumps(uris)
-        encodedData = json_data.encode('ascii')
-        mimeData.setData('application/x-fubar', encodedData)
+        encodedData = json_data.encode("ascii")
+        mimeData.setData("application/x-fubar", encodedData)
         return mimeData
